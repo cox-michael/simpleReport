@@ -1,0 +1,20 @@
+# dependencies
+/node_modules
+
+# misc
+*.log
+.env
+authenticate.js
+notes.note
+
+# directories
+/dist
+/reports
+/sessions
+/delete
+/src/delete
+/tmp
+
+/dist/*.js
+
+# ignore email files, but not the templates
