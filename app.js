@@ -206,7 +206,11 @@ app.get('//getRequests', (req, res) => {
 	}
 
 	const query = [
-  {
+	{
+    $match: {
+      completed: false
+    }
+  }, {
     $addFields: {
       votes: {
         $subtract: [
@@ -494,6 +498,7 @@ app.post('//createNewRequest', (req, res) => {
 		upvotes: [],
 		downvotes: [],
 		author: mongodb.ObjectId(req.session.userid),
+		completed: false,
 	}
 	dbo.collection("requests").insertOne(request, function(err, result) {
 		assert.equal(err, null);
