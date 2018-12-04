@@ -5,7 +5,6 @@
 *.log
 .env
 authenticate.js
-notes.note
 
 # directories
 /dist
@@ -14,6 +13,7 @@ notes.note
 /delete
 /src/delete
 /tmp
+/notes
 
 /dist/*.js
 

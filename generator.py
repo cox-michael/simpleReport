@@ -17,7 +17,7 @@ import os
 from dateutil import tz
 from dotenv import load_dotenv
 
-root = os.path.dirname(__file__) # relative directory path
+root = os.path.dirname(__file__) + '/' # relative directory path
 
 now = datetime.datetime.now()
 print('\n\nStarting ' + now.strftime('%Y-%m-%d %H:%M:%S'))
@@ -365,7 +365,7 @@ if time == 'Morning':
         print('\t\t\tSend email')
         linux_cmd = """mail -a "Content-type: text/html" """
         if env == 'production':
-            linux_cmd += """"-s "Daily Report Delivery" """
+            linux_cmd += """-s "Daily Report Delivery" """
         else:
             linux_cmd += f"""-s "Daily Report Delivery ({user['username']})" """
         # from

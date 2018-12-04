@@ -18,6 +18,7 @@ class App extends React.Component {
 			loading: true,
 			isLoggedIn: false,
 			superpower: false,
+			analyst: false,
 			// username: null,
 			displayName: '',
 		};
@@ -34,18 +35,20 @@ class App extends React.Component {
 				isLoggedIn: data.isLoggedIn,
 				displayName: data.displayName,
 				superpower: data.superpower,
+				analyst: data.analyst,
 				loading: false
 			}));
 	}
 
 	handleLoginStatusChange(isLoggedIn,
 		 											displayName=this.state.displayName,
-													superpower=this.state.superpower) {
-		console.log('Login (parent) recieved: ' + isLoggedIn + ' and ' + displayName + ' and ' + superpower);
+													superpower=this.state.superpower,
+													analyst=this.state.analyst) {
 		this.setState({
 			isLoggedIn: isLoggedIn,
 			displayName: displayName,
 			superpower: superpower,
+			analyst: analyst,
 		});
 	}
 
@@ -65,8 +68,9 @@ class App extends React.Component {
 		} else if (this.state.isLoggedIn) {
 			const loginState = {
 				isLoggedIn: this.state.isLoggedIn,
-				superpower: this.state.superpower,
 				displayName: this.state.displayName,
+				superpower: this.state.superpower,
+				analyst: this.state.analyst,
 			};
 			return (
 				<Router>

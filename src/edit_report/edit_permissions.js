@@ -27,9 +27,7 @@ class EditPermissions extends React.Component {
 
 	handleChange = ({ target }) => {
 		const permissions = this.props.permissions
-		console.log(target.name);
 		const value = target.type === 'checkbox' ? target.checked : target.value;
-		console.log(value);
 
 		const [f, s] = target.name.split('.');
 		permissions[f][s] = value;

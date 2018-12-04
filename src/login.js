@@ -59,15 +59,6 @@ class SignIn extends React.Component {
 		// This binding is necessary to make `this` work in the callback
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleChange = this.handleChange.bind(this);
-		//this.special = this.special.bind(this);
-	}
-
-	special(data) {
-		console.log('special');
-		this.setState({
-			data
-		});
-
 	}
 
 	handleChange({ target }) {
@@ -78,7 +69,6 @@ class SignIn extends React.Component {
 
 	handleSubmit(e) {
 		e.preventDefault();
-		console.log('button was clicked');
 		var inv = document.getElementById("invalid")
 		if (inv) {
 			inv.classList.remove('blink_me');
@@ -104,7 +94,10 @@ class SignIn extends React.Component {
 		})
 			.then(response => response.json())
 			.then(data => {
-				this.props.handleLoginStatusChange(data.isLoggedIn, data.displayName, data.superpower);
+				this.props.handleLoginStatusChange(data.isLoggedIn,
+					 																 data.displayName,
+																					 data.superpower,
+																				   data.analyst);
 			});
 	}
 

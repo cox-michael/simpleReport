@@ -15,16 +15,8 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 
 const styles = theme => ({
-	root: {
-		width: '100%',
-		marginTop: theme.spacing.unit * 3,
-		overflowX: 'auto',
-	},
 	table: {
 		minWidth: 500,
-	},
-	iconSmall: {
-		fontSize: 20,
 	},
 	noWrap: {
 		whiteSpace: 'nowrap',
@@ -44,11 +36,13 @@ class ViewSingleReport extends React.Component {
 	};
 
 	download(reportId, {target}) {
-		window.open("http://" + process.env.FULL_URL + "/downloadReport/" + reportId, "_self");
+		window.open("http://" + process.env.FULL_URL +
+		 						"/downloadReport/" + reportId, "_self");
 	}
 
   render() {
 		const classes = this.props.classes;
+		const report = this.props.report.report;
 
     return (
         <Dialog
@@ -57,9 +51,9 @@ class ViewSingleReport extends React.Component {
 					scroll="paper"
           aria-labelledby="form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">{this.props.report.report.name}</DialogTitle>
+          <DialogTitle id="form-dialog-title">{report.name}</DialogTitle>
           <DialogContent>
-            <DialogContentText>{this.props.report.report.description}</DialogContentText>
+            <DialogContentText>{report.description}</DialogContentText>
 						<Table className={classes.table}>
 							<TableHead>
 								<TableRow>
@@ -68,7 +62,7 @@ class ViewSingleReport extends React.Component {
 								</TableRow>
 							</TableHead>
 							<TableBody>
-								{this.props.report.report.reports.map(row => {
+								{report.reports.map(row => {
 									return (
 										<TableRow
 										 	key={row._id}
@@ -88,10 +82,14 @@ class ViewSingleReport extends React.Component {
 						</Table>
           </DialogContent>
           <DialogActions>
-						<Link to={process.env.API_URL + '/editReport/' + this.props.report.report._id} style={{textDecoration: 'none'}}>
-            <Button onClick={this.props.fn.closeReport} color="primary">
+						<Link
+						 	to={process.env.API_URL + '/editReport/' + report._id}
+							style={{textDecoration: 'none'}}>
+						{ this.props.analyst &&
+						<Button onClick={this.props.fn.closeReport} color="primary">
               Edit
             </Button>
+						}
 						</Link>
             <Button onClick={this.props.fn.closeReport} color="primary">
               Close

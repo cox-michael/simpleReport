@@ -66,14 +66,24 @@ class Schedules extends React.Component {
 	render() {
 		const classes = this.props.classes;
 
-		return (
-				<Paper className={classes.paper}>
-					<SchedulesTable
-					 	schedules={this.state.data.schedules}
-						reload={this.reload}
-						showDept />
-				</Paper>
-		)
+		if (!this.state.data.schedules.length) {
+			return (
+					<Paper className={classes.paper}>
+						<Typography>
+							It looks like none of the reports you have access to are scheduled.
+						</Typography>
+					</Paper>
+			)
+		} else {
+			return (
+					<Paper className={classes.paper}>
+						<SchedulesTable
+						 	schedules={this.state.data.schedules}
+							reload={this.reload}
+							showDept />
+					</Paper>
+			)
+		}
 	}
 }
 

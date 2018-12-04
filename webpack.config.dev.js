@@ -32,31 +32,31 @@ module.exports = options => {
 			],
 		},
 		plugins: [
-			new webpack.DefinePlugin(envKeys),
-			new HtmlWebpackPlugin({
-				API_URL: process.env.API_URL,
-	      filename: 'index.html',
-	      template: 'src/index_template.html',
-				inject: false
-	    }),
-			new HtmlWebpackPlugin({
-				FULL_URL: process.env.FULL_URL,
-	      filename: 'daily_delivery.html',
-	      template: 'src/email_templates/daily_delivery.html',
-				inject: false
-	    }),
-			new HtmlWebpackPlugin({
-				FULL_URL: process.env.FULL_URL,
-	      filename: 'immediate_notification.html',
-	      template: 'src/email_templates/immediate_notification.html',
-				inject: false
-	    }),
-			new HtmlWebpackPlugin({
-				FULL_URL: process.env.FULL_URL,
-	      filename: 'report_row.html',
-	      template: 'src/email_templates/report_row.html',
-				inject: false
-	    })
+			new webpack.DefinePlugin(envKeys)
+			// new HtmlWebpackPlugin({
+			// 	API_URL: process.env.API_URL,
+	    //   filename: 'index.html',
+	    //   template: 'src/index_template.html',
+			// 	inject: false
+	    // }),
+			// new HtmlWebpackPlugin({
+			// 	FULL_URL: process.env.FULL_URL,
+	    //   filename: 'daily_delivery.html',
+	    //   template: 'src/email_templates/daily_delivery.html',
+			// 	inject: false
+	    // }),
+			// new HtmlWebpackPlugin({
+			// 	FULL_URL: process.env.FULL_URL,
+	    //   filename: 'immediate_notification.html',
+	    //   template: 'src/email_templates/immediate_notification.html',
+			// 	inject: false
+	    // }),
+			// new HtmlWebpackPlugin({
+			// 	FULL_URL: process.env.FULL_URL,
+	    //   filename: 'report_row.html',
+	    //   template: 'src/email_templates/report_row.html',
+			// 	inject: false
+	    // })
 		]
 	}
 }

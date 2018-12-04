@@ -7,6 +7,34 @@ import ViewSingleReport from './view_single_report';
 import Dialog from '@material-ui/core/Dialog';
 import { Redirect } from 'react-router';
 
+import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
+import indigo from '@material-ui/core/colors/indigo';
+import pink from '@material-ui/core/colors/pink';
+import red from '@material-ui/core/colors/red';
+import amber from '@material-ui/core/colors/amber';
+import orange from '@material-ui/core/colors/orange';
+import blue from '@material-ui/core/colors/blue';
+
+// All the following keys are optional.
+// We try our best to provide a great default value.
+const theme = createMuiTheme({
+  palette: {
+    primary: indigo,
+    secondary: orange,
+    // error: red,
+    // type: process.env.NODE_ENV == 'production' ? 'light' : 'dark',
+    // contrastThreshold: 3,
+    // Used to shift a color's luminance by approximately
+    // two indexes within its tonal palette.
+    // E.g., shift from Red 500 to Red 300 or Red 700.
+    // tonalOffset: 0.2,
+  },
+  typography: {
+    useNextVariants: true,
+    suppressDeprecationWarnings: true,
+  },
+});
+
 const SessionContext = React.createContext()
 class SessionProvider extends React.Component {
 	constructor(props){
@@ -61,7 +89,6 @@ class SessionProvider extends React.Component {
   };
 
   openReport = (report) => {
-		var report = report;
 		report.reports = [];
 		this.setState({
 		report: {
@@ -113,28 +140,31 @@ class SessionProvider extends React.Component {
 		// }
 		return (
 			<SessionContext.Provider value={this.state}>
-				{this.props.children}
+				<MuiThemeProvider theme={theme}>
+					{this.props.children}
 
 
-				<ViewSingleReport
-					report={this.state.report}
-					fn={{closeReport: this.closeReport}}
-				/>
-				<Snackbar
-					anchorOrigin={{ vertical: 'bottom', horizontal: 'right', }}
-					open={this.state.snack.open}
-					autoHideDuration={6000}
-					onClose={this.closeSnack}
-					ContentProps={{ 'aria-describedby': 'message-id', }}
-					message={<span id="message-id">{this.state.snack.msg}</span>}
-					action={[
-						<IconButton key="close" aria-label="Close" color="inherit"
-							onClick={this.closeSnack}
-						>
-							<CloseIcon />
-						</IconButton>,
-					]}
-				/>
+					<ViewSingleReport
+						report={this.state.report}
+						fn={{closeReport: this.closeReport}}
+            analyst={this.props.loginState.analyst}
+					/>
+					<Snackbar
+						anchorOrigin={{ vertical: 'bottom', horizontal: 'right', }}
+						open={this.state.snack.open}
+						autoHideDuration={6000}
+						onClose={this.closeSnack}
+						ContentProps={{ 'aria-describedby': 'message-id', }}
+						message={<span id="message-id">{this.state.snack.msg}</span>}
+						action={[
+							<IconButton key="close" aria-label="Close" color="inherit"
+								onClick={this.closeSnack}
+							>
+								<CloseIcon />
+							</IconButton>,
+						]}
+					/>
+				</MuiThemeProvider>
 			</SessionContext.Provider>
 		)
 	}

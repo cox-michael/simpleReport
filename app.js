@@ -105,6 +105,12 @@ app.get('//removeAnalyst', (req, res) => {
 	res.end('not an analyst anymore');
 });
 
+app.get('//removeSuperpower', (req, res) => {
+	req.session.superpower = false;
+	req.session.save();
+	res.end('not a hero anymore');
+});
+
 app.get('//dist/main.js', (req, res) => {
 	res.sendFile(path.join(__dirname + '/dist/main.js'));
 });
@@ -189,6 +195,80 @@ app.get('//getReports', (req, res) => {
 			success: true,
 			messages: [],
 			reports: docs
+		})
+	});
+});
+
+app.get('//getRequests', (req, res) => {
+	if (!req.session.isLoggedIn){
+		res.json(notLoggedIn)
+		return;
+	}
+
+	const query = [
+  {
+    $addFields: {
+      votes: {
+        $subtract: [
+          {
+            $size: "$upvotes"
+          }, {
+            $size: "$downvotes"
+          }
+        ]
+      }
+    }
+  }, {
+    $addFields: {
+      upvoted: {
+        $in: [
+          mongodb.ObjectId('5bf46573f5c92f6b5383b5bd'), "$upvotes"
+        ]
+      },
+      downvoted: {
+        $in: [
+          mongodb.ObjectId(req.session.userid), "$downvotes"
+        ]
+      }
+    }
+  }, {
+    $project: {
+      upvotes: 0,
+      downvotes: 0
+    }
+  }, {
+    $lookup: {
+      from: 'users',
+      localField: 'author',
+      foreignField: '_id',
+      as: 'author'
+    }
+  }, {
+    $addFields: {
+      author: {
+        $arrayElemAt: [
+          "$author", 0
+        ]
+      }
+    }
+  }, {
+    $addFields: {
+      author: "$author.ldap.displayName"
+    }
+  }, {
+    $sort: {
+      votes: -1
+    }
+  }
+]
+
+	dbo = db.db(process.env.DB_NAME);
+	dbo.collection("requests").aggregate(query).toArray(function(err, docs) {
+		res.json({
+			isLoggedIn: req.session.isLoggedIn,
+			success: true,
+			messages: [],
+			requests: docs,
 		})
 	});
 });
@@ -401,6 +481,36 @@ app.post('//create_new_report', (req, res) => {
 	});
 });
 
+app.post('//createNewRequest', (req, res) => {
+	if (!req.session.isLoggedIn) {
+		res.json(notLoggedIn);
+		return;
+	}
+
+	console.log('createNewRequest');
+	dbo = db.db(process.env.DB_NAME);
+	const request = {
+		description: req.body.description,
+		upvotes: [],
+		downvotes: [],
+		author: mongodb.ObjectId(req.session.userid),
+	}
+	dbo.collection("requests").insertOne(request, function(err, result) {
+		assert.equal(err, null);
+		assert.equal(1, result.result.n);
+		assert.equal(1, result.ops.length);
+		console.log('Inserted 1 document into requests');
+		console.log(result.insertedId)
+		// console.log(result);
+		res.json({
+			isLoggedIn: req.session.isLoggedIn,
+			success: true,
+			messages: [],
+			request: result
+		})
+	});
+});
+
 app.post('//update_report', (req, res) => {
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -558,6 +668,53 @@ app.post('//unstar', (req, res) => {
 		// assert.equal(1, result.ops.length);
 		console.log('Removed 1 starred from users');
 		console.log(result)
+		// console.log(result);
+		res.json({
+			isLoggedIn: req.session.isLoggedIn,
+			success: true,
+			messages: [],
+			// reports: result
+		})
+	});
+});
+
+app.post('//requestVote', (req, res) => {
+	if (!req.session.isLoggedIn){
+		res.json(notLoggedIn);
+		return;
+	}
+
+	var update;
+
+	if (req.body.direction == 'up') {
+		update = {
+			$pull: {downvotes: mongodb.ObjectId(req.session.userid)},
+			$addToSet: {upvotes: mongodb.ObjectId(req.session.userid)},
+		}
+	} else if (req.body.direction == 'down') {
+		update = {
+			$pull: {upvotes: mongodb.ObjectId(req.session.userid)},
+			$addToSet: {downvotes: mongodb.ObjectId(req.session.userid)},
+		}
+	} else {
+		update = {
+			$pull: {
+				upvotes: mongodb.ObjectId(req.session.userid),
+				downvotes: mongodb.ObjectId(req.session.userid)
+			},
+		}
+	}
+
+	dbo = db.db(process.env.DB_NAME);
+	dbo.collection("requests").findOneAndUpdate(
+		{ _id: mongodb.ObjectId(req.body.request_id) },
+		update,
+		{ upsert: 1 },
+		function(err, result) {
+		assert.equal(err, null);
+		// assert.equal(1, result.result.n);
+		// assert.equal(1, result.ops.length);
+		console.log(req.body.direction + ' vote (request)');
 		// console.log(result);
 		res.json({
 			isLoggedIn: req.session.isLoggedIn,
@@ -774,6 +931,7 @@ app.post('//login', function(req, res) {
 			isLoggedIn: req.session.isLoggedIn,
 			displayName: req.session.ldap.displayName,
 			superpower: req.session.superpower,
+			analyst: req.session.analyst,
 		}));
 });
 
@@ -792,6 +950,7 @@ app.get('//loggedIn', (req, res) => {
 			isLoggedIn: req.session.isLoggedIn,
 			displayName: req.session.ldap.displayName,
 			superpower: req.session.superpower,
+			analyst: req.session.analyst,
 		});
 	} else {
 		console.log('not logged in');
@@ -816,6 +975,7 @@ app.post('//superpower', function(req, res) {
 				isLoggedIn: req.session.isLoggedIn,
 				displayName: req.session.ldap.displayName,
 				superpower: req.session.superpower,
+				analyst: req.session.analyst,
 				success: true,
 			}));
 	}

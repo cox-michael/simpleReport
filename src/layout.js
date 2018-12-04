@@ -28,6 +28,7 @@ import NotPermitted from './not_permitted';
 import ButtonExample from './button_example';
 import EditReport from './edit_report';
 import Download from './download';
+import Requests from './requests';
 import Button from '@material-ui/core/Button';
 import { MeetingRoom } from '@material-ui/icons';
 import { SessionContext } from "./session";
@@ -156,14 +157,18 @@ class Layout extends React.Component {
 							>
 								<MenuIcon />
 							</IconButton>
-							<Typography variant="h6" color="inherit" noWrap className={classes.grow}>
+							<Typography
+                variant="h6"
+                color="inherit"
+                noWrap
+                className={classes.grow}>
 								simpleReport {process.env.NODE_ENV != 'production' && (" - " + process.env.NODE_ENV)}
 							</Typography>
               <div>
   							<Typography variant="subtitle2" color="inherit" noWrap>
-                  <SessionContext.Consumer>{session => (
-                    <div className={classes.displayName}>{ session.loginState.displayName }</div>
-                  )}</SessionContext.Consumer>
+                  <div className={classes.displayName}>
+                    { this.context.loginState.displayName }
+                  </div>
   							</Typography>
   							<Button color="inherit" onClick={this.handleLogout}>
   								<MeetingRoom className={classNames(classes.leftIcon)} />
@@ -196,52 +201,85 @@ class Layout extends React.Component {
 								<ListItem button key="Subscribed"><ListItemIcon><Notifications /></ListItemIcon><ListItemText primary="Subscribed" /></ListItem>
 							</Link>
 							<Divider />
+              { /*
 							<Link to={process.env.API_URL + "/adhoc"}>
 								<ListItem button key="Ad-Hoc"><ListItemIcon><LooksOne /></ListItemIcon><ListItemText primary="Ad-Hoc" /></ListItem>
 							</Link>
+              */ }
 							<Link to={process.env.API_URL + "/schedules"}>
 								<ListItem button key="Schedules"><ListItemIcon><AccessTime /></ListItemIcon><ListItemText primary="Schedules" /></ListItem>
 							</Link>
 						</List>
 						<Divider />
 						<List>
-							<Link to={process.env.API_URL + "/button"}>
+							<Link to={process.env.API_URL + "/requests"}>
 								<ListItem button key="Feature Request"><ListItemIcon><HowToVote /></ListItemIcon><ListItemText primary="Feature Request" /></ListItem>
 							</Link>
 						</List>
+            { this.context.loginState.superpower &&
 						<List>
 							<Link to={process.env.API_URL + "/superpower"}>
 								<ListItem button key="Superpower"><ListItemIcon><Fingerprint /></ListItemIcon><ListItemText primary="Superpower" /></ListItem>
 							</Link>
 						</List>
+            }
+            { /*
 						<List>
 							<Link to={process.env.API_URL + "/button"}>
 								<ListItem button key="Data Sources"><ListItemIcon><Transform /></ListItemIcon><ListItemText primary="Data Sources" /></ListItem>
 							</Link>
 						</List>
+            */ }
+            { /*
 						<List>
 							<Link to={process.env.API_URL + "/button"}>
 								<ListItem button key="Data Sources 2"><ListItemIcon><MergeType /></ListItemIcon><ListItemText primary="Data Sources 2" /></ListItem>
 							</Link>
 						</List>
+            */ }
+            { /*
 						<List>
 							<Link to={process.env.API_URL + "/button"}>
 								<ListItem button key="Site Analytics"><ListItemIcon><InsertChart /></ListItemIcon><ListItemText primary="Site Analytics" /></ListItem>
 							</Link>
 						</List>
+            */ }
 					</Drawer>
 					<main className={classes.content}>
 						<div className={classes.toolbar} />
-						<Route exact path={process.env.API_URL} render={ () => <Definitions filter="none" /> } />
-						<Route path={process.env.API_URL + "/starred"} render={ () => <Definitions filter="starred" /> } />
-						<Route path={process.env.API_URL + "/subscribed"} render={ () => <Definitions filter="subscribed" /> } />
-						<Route path={process.env.API_URL + "/schedules"} render={ () => <Schedules filter="subscribed" /> } />
-						<Route path={process.env.API_URL + "/featureRequest"} component={ButtonExample} />
-						<Route path={process.env.API_URL + "/createNewReport"} component={EditReport} />
-						<Route path={process.env.API_URL + "/editReport/:report_id"} component={EditReport} />
-						<Route path={process.env.API_URL + "/download/:report_id"} component={Download} />
-						<Route path={process.env.API_URL + "/notPermitted"} component={NotPermitted} />
-						<Route path={process.env.API_URL + "/superpower"} component={Superpower} />
+						<Route
+              exact path={process.env.API_URL}
+              render={ () => <Definitions filter="none" /> } />
+						<Route
+              path={process.env.API_URL + "/starred"}
+              render={ () => <Definitions filter="starred" /> } />
+						<Route
+              path={process.env.API_URL + "/subscribed"}
+              render={ () => <Definitions filter="subscribed" /> } />
+						<Route
+              path={process.env.API_URL + "/definition/:definition_id"}
+              component={Definitions} />
+						<Route
+              path={process.env.API_URL + "/schedules"}
+              render={ () => <Schedules filter="subscribed" /> } />
+						<Route
+              path={process.env.API_URL + "/requests"}
+              component={Requests} />
+						<Route
+              path={process.env.API_URL + "/createNewReport"}
+              component={EditReport} />
+						<Route
+              path={process.env.API_URL + "/editReport/:report_id"}
+              component={EditReport} />
+						<Route
+              path={process.env.API_URL + "/download/:report_id"}
+              component={Download} />
+						<Route
+              path={process.env.API_URL + "/notPermitted"}
+              component={NotPermitted} />
+						<Route
+              path={process.env.API_URL + "/superpower"}
+              component={Superpower} />
 					</main>
 				</div>
 		);
