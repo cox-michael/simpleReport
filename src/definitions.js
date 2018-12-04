@@ -130,7 +130,7 @@ class Definitions extends React.Component {
 					}
 					{[...new Set(reports.map(report => report.dept))].sort().map(dept => (
 
-						<ExpansionPanel key={dept}>
+						<ExpansionPanel key={dept} defaultExpanded={ reports.length == 1 }>
 							<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
 								<Typography>{dept}</Typography>
 							</ExpansionPanelSummary>
