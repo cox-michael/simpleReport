@@ -29,6 +29,7 @@ import ButtonExample from './button_example';
 import EditReport from './edit_report';
 import Download from './download';
 import Requests from './requests';
+import Analytics from './analytics';
 import Button from '@material-ui/core/Button';
 import { MeetingRoom } from '@material-ui/icons';
 import { SessionContext } from "./session";
@@ -237,13 +238,13 @@ class Layout extends React.Component {
 							</Link>
 						</List>
             */ }
-            { /*
+            { this.context.loginState.analyst &&
 						<List>
-							<Link to={process.env.API_URL + "/button"}>
+							<Link to={process.env.API_URL + "/analytics"}>
 								<ListItem button key="Site Analytics"><ListItemIcon><InsertChart /></ListItemIcon><ListItemText primary="Site Analytics" /></ListItem>
 							</Link>
 						</List>
-            */ }
+            }
 					</Drawer>
 					<main className={classes.content}>
 						<div className={classes.toolbar} />
@@ -280,6 +281,9 @@ class Layout extends React.Component {
 						<Route
               path={process.env.API_URL + "/superpower"}
               component={Superpower} />
+						<Route
+              path={process.env.API_URL + "/analytics"}
+              component={Analytics} />
 					</main>
 				</div>
 		);

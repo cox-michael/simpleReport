@@ -361,6 +361,141 @@ app.get('//getSchedules', (req, res) => {
 	});
 });
 
+app.get('//mostDownloadedReports', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
+	if (!req.session.isLoggedIn) {
+		res.json(notLoggedIn);
+		return;
+	} else if (!req.session.analyst) {
+		res.json(notPermitted);
+		return;
+	}
+
+	dbo = db.db(process.env.DB_NAME);
+	var query = [
+	  {
+	    $project: {
+	      filename: 1,
+	      downloads: 1
+	    }
+	  }, {
+	    $match: {
+	      $expr: {
+	        $gt: [
+	          {
+	            $size: "$downloads"
+	          }, 0
+	        ]
+	      }
+	    }
+	  }, {
+	    $unwind: {
+	      path: "$downloads"
+	    }
+	  }, {
+	    $group: {
+	      _id: {
+	        _id: "$_id",
+	        filename: "$filename"
+	      },
+	      "downloads": {
+	        $addToSet: "$downloads.user_id"
+	      }
+	    }
+	  }, {
+	    $addFields: {
+	      _id: "$_id._id",
+	      filename: "$_id.filename",
+	      downloads: {
+	        $size: "$downloads"
+	      }
+	    }
+	  }, {
+	    $sort: {
+	      downloads: -1
+	    }
+	  }, {
+	    $limit: 5
+	  }
+	]
+
+	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
+		res.json({
+			isLoggedIn: req.session.isLoggedIn,
+			success: true,
+			messages: [],
+			reports: docs
+		})
+	});
+});
+
+app.get('//mostActiveUsersByDownloads', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
+	if (!req.session.isLoggedIn) {
+		res.json(notLoggedIn);
+		return;
+	} else if (!req.session.analyst) {
+		res.json(notPermitted);
+		return;
+	}
+
+	dbo = db.db(process.env.DB_NAME);
+	var query = [
+  {
+    $project: {
+      user_id: "$downloads.user_id"
+    }
+  }, {
+    $unwind: {
+      path: "$user_id"
+    }
+  }, {
+    $group: {
+      _id: "$user_id",
+      downloads: {
+        $addToSet: "$_id"
+      }
+    }
+  }, {
+    $addFields: {
+      downloads: {
+        $size: "$downloads"
+      }
+    }
+  }, {
+    $lookup: {
+      from: 'users',
+      localField: '_id',
+      foreignField: '_id',
+      as: 'displayName'
+    }
+  }, {
+    $addFields: {
+      displayName: {
+        $arrayElemAt: [
+          "$displayName.ldap.displayName", 0
+        ]
+      }
+    }
+  }, {
+    $sort: {
+      downloads: -1
+    }
+  }, {
+    $limit: 5
+  }
+]
+
+	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
+		res.json({
+			isLoggedIn: req.session.isLoggedIn,
+			success: true,
+			messages: [],
+			users: docs
+		})
+	});
+});
+
 app.get('//downloadReport/:id', (req, res) => {
 	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
