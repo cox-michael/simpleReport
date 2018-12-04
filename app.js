@@ -391,10 +391,21 @@ app.get('//downloadReport/:id', (req, res) => {
 			} else { // TODO clean up these two else statements. They do the same thing
 				console.log('\n\ndownloading report');
 				dbo = db.db(process.env.DB_NAME);
-				dbo.collection("reports").findOne(
+				dbo.collection("reports").findOneAndUpdate(
 					{'_id': mongodb.ObjectId(req.params.id)},
-					{file: 1}
-				).then(doc => {
+					{ $push: {
+						downloads: {
+							timestamp: "$currentDate",
+							user_id: mongodb.ObjectId(req.session.realUserid)
+						}
+					}},
+					{
+						// projection: { file: 1 },
+						upsert: false,
+					}
+				)
+				.then(result => {
+					const doc = result.value;
 					if (!doc){
 						throw new Error('No record found.');
 					}
@@ -405,7 +416,8 @@ app.get('//downloadReport/:id', (req, res) => {
 					});
 
 					res.end(new Buffer(doc.file.buffer, 'binary') );
-				}).catch(err => {
+				})
+				.catch(err => {
 					console.log('\n\nthere was an error:\n');
 					console.log(err)
 					res.send('No such report was found');
@@ -415,10 +427,20 @@ app.get('//downloadReport/:id', (req, res) => {
 	} else { // TODO clean up these two else statements. They do the same thing
 		console.log('\n\ndownloading report');
 		dbo = db.db(process.env.DB_NAME);
-		dbo.collection("reports").findOne(
+		dbo.collection("reports").findOneAndUpdate(
 			{'_id': mongodb.ObjectId(req.params.id)},
-			{file: 1}
-		).then(doc => {
+			{ $push: {
+				downloads: {
+					timestamp: "$currentDate",
+					user_id: mongodb.ObjectId(req.session.realUserid)
+				}
+			}},
+			{
+				// projection: { file: 1 },
+				upsert: false,
+			}
+		).then(result => {
+			const doc = result.value;
 			if (!doc){
 				throw new Error('No record found.');
 			}
@@ -928,6 +950,7 @@ app.post('//login', function(req, res) {
 
 	processLogin(req.session, req.body)
 		.then(session => {
+			session.realUserid = session.userid;
 			req.session = session;
 			req.session.save();
 		})
@@ -969,9 +992,11 @@ app.get('//loggedIn', (req, res) => {
 app.post('//superpower', function(req, res) {
 	if(req.session.isLoggedIn && req.session.superpower) {
 		console.log('superpower switching to: ' + req.body.username);
+		const realUserid = req.session.realUserid;
 
 		processLogin(req.session, req.body)
 			.then(session => {
+				session.realUserid = realUserid;
 				req.session = session;
 				req.session.save();
 			})
