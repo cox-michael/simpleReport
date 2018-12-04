@@ -66,6 +66,23 @@ const getLocations = (req, res) => {
 apiRouter.get('/locations', getLocations);
 app.use('/', apiRouter);
 
+var log = (user, url) => {
+	var d = new Date();
+	var timestamp = (
+		d.getFullYear().toString() +
+		"-" + ((d.getMonth()+1).toString().length==2?(d.getMonth()+1).toString():"0"+(d.getMonth()+1).toString()) +
+		"-" + (d.getDate().toString().length==2?d.getDate().toString():"0"+d.getDate().toString()) +
+		" " + (d.getHours().toString().length==2?d.getHours().toString():"0"+d.getHours().toString()) +
+		":" + (d.getMinutes().toString().length==2?d.getMinutes().toString():"0"+d.getMinutes().toString()) +
+		":" + (d.getSeconds().toString().length==2?d.getSeconds().toString():"0"+d.getSeconds().toString())
+	);
+
+	var msg = '[' + timestamp + ']'
+	msg += ' ' + user;
+	msg += ' ' + url;
+
+	console.log(msg)
+}
 
 const notLoggedIn = {
 	isLoggedIn: false,
@@ -87,35 +104,42 @@ const notPermitted = {
 // GET #########################################################################
 
 app.get('/', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 
 app.get('//', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 
 app.get('//destroy', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	req.session.destroy();
 	res.end('Session destroyed!');
 });
 
 app.get('//removeAnalyst', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	req.session.analyst = false;
 	req.session.save();
 	res.end('not an analyst anymore');
 });
 
 app.get('//removeSuperpower', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	req.session.superpower = false;
 	req.session.save();
 	res.end('not a hero anymore');
 });
 
 app.get('//dist/main.js', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	res.sendFile(path.join(__dirname + '/dist/main.js'));
 });
 
 app.get('//getReports', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	dbo = db.db(process.env.DB_NAME);
 	var query = [
 		{
@@ -200,6 +224,7 @@ app.get('//getReports', (req, res) => {
 });
 
 app.get('//getRequests', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn)
 		return;
@@ -278,6 +303,7 @@ app.get('//getRequests', (req, res) => {
 });
 
 app.get('//getSchedules', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	dbo = db.db(process.env.DB_NAME);
 	var query = [
 	  {
@@ -336,6 +362,7 @@ app.get('//getSchedules', (req, res) => {
 });
 
 app.get('//downloadReport/:id', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.redirect(process.env.API_URL + '/download/' + req.params.id);
 		return;
@@ -460,10 +487,12 @@ app.get('//downloadReport/:id', (req, res) => {
 });
 
 app.get('//session_data', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	res.json(req.session);
 });
 
 app.get('//expires', function(req, res, next) {
+	log(req.session.realUn, req.originalUrl);
   if (req.session.views) {
     req.session.views++
     res.setHeader('Content-Type', 'text/html')
@@ -481,6 +510,7 @@ app.get('//expires', function(req, res, next) {
 // POST ########################################################################
 
 app.post('//create_new_report', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn) {
 		res.json(notLoggedIn);
 		return;
@@ -508,6 +538,7 @@ app.post('//create_new_report', (req, res) => {
 });
 
 app.post('//createNewRequest', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn) {
 		res.json(notLoggedIn);
 		return;
@@ -539,6 +570,7 @@ app.post('//createNewRequest', (req, res) => {
 });
 
 app.post('//update_report', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -570,6 +602,7 @@ app.post('//update_report', (req, res) => {
 });
 
 app.post('//subscribe', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -596,6 +629,7 @@ app.post('//subscribe', (req, res) => {
 });
 
 app.post('//notify', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -622,6 +656,7 @@ app.post('//notify', (req, res) => {
 });
 
 app.post('//unsubscribe', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -652,6 +687,7 @@ app.post('//unsubscribe', (req, res) => {
 });
 
 app.post('//star', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -678,6 +714,7 @@ app.post('//star', (req, res) => {
 });
 
 app.post('//unstar', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -706,6 +743,7 @@ app.post('//unstar', (req, res) => {
 });
 
 app.post('//requestVote', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -753,6 +791,7 @@ app.post('//requestVote', (req, res) => {
 });
 
 app.post('//returnDefinition', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn) {
 		res.json(notLoggedIn);
 		return;
@@ -821,6 +860,7 @@ app.post('//returnDefinition', (req, res) => {
 });
 
 app.post('//getReportsForDef', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -946,6 +986,7 @@ const processLogin = (session, body) => {
 };
 
 app.post('//login', function(req, res) {
+	log(req.session.realUn, req.originalUrl);
 	req.session.realUn = req.body.username;
 
 	processLogin(req.session, req.body)
@@ -964,11 +1005,13 @@ app.post('//login', function(req, res) {
 });
 
 app.get('//logout', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	req.session.isLoggedIn = false;
 	res.redirect(process.env.API_URL + '/');
 });
 
 app.get('//loggedIn', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	if (req.session.isLoggedIn) {
 		console.log(req.session.un + ' is logged in');
 		console.log('The displayName is ' + req.session.ldap.displayName);
@@ -990,6 +1033,7 @@ app.get('//loggedIn', (req, res) => {
 });
 
 app.post('//superpower', function(req, res) {
+	log(req.session.realUn, req.originalUrl);
 	if(req.session.isLoggedIn && req.session.superpower) {
 		console.log('superpower switching to: ' + req.body.username);
 		const realUserid = req.session.realUserid;
@@ -1017,9 +1061,11 @@ app.post('//superpower', function(req, res) {
 
 // This is for React-Router to work
 app.get('*', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 app.get('/*/*', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 
