@@ -21,8 +21,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 const styles = theme => ({
   card: {
-    minWidth: 800,
+    width: 800,
     marginBottom: theme.spacing.unit * 2,
+  },
+  content: {
+    width: 712,
   },
   author: {
     fontSize: 14,
@@ -263,7 +266,7 @@ class Requests extends React.Component {
           					</IconButton>
                   </Grid>
                 </CardActions>
-                <CardContent>
+                <CardContent className={classes.content}>
                   <Typography component="p">
                     {request.description}
                   </Typography>
