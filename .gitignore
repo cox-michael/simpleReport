@@ -14,7 +14,3 @@ authenticate.js
 /src/delete
 /tmp
 /notes
-
-/dist/*.js
-
-# ignore email files, but not the templates
