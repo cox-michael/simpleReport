@@ -99,6 +99,9 @@ class Definitions extends React.Component {
 	render() {
 		const classes = this.props.classes;
 		var reports = this.state.data.reports;
+		var depts = [...new Set(reports.map(report => report.dept))]
+
+
 
 		// if (this.state.loading) {
 		// 	<CircularProgress size={100} color='primary' />
@@ -128,9 +131,9 @@ class Definitions extends React.Component {
 						</Link>
 					</div>
 					}
-					{[...new Set(reports.map(report => report.dept))].sort().map(dept => (
+					{depts.sort().map(dept => (
 
-						<ExpansionPanel key={dept} defaultExpanded={ reports.length == 1 }>
+						<ExpansionPanel key={dept} defaultExpanded={ depts.length == 1 }>
 							<ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
 								<Typography>{dept}</Typography>
 							</ExpansionPanelSummary>
