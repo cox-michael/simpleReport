@@ -68,15 +68,15 @@ class MostActiveUsersByDownloads extends React.Component {
         </Typography>
         <Table className={classes.table}>
           <TableHead>
-            <TableRow hover>
-              <TableCell>user Name</TableCell>
+            <TableRow>
+              <TableCell>Name</TableCell>
               <TableCell numeric>Downloads</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {users.map(user => {
               return (
-                <TableRow key={user._id}>
+                <TableRow hover key={user._id}>
                   <TableCell component="th">
                     {user.displayName}
                   </TableCell>

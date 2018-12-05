@@ -53,34 +53,6 @@ class MostDownloadedReports extends React.Component {
     });
   }
 
-  // postRequest = () => {
-  //   this.setState({
-  //     loading: true,
-  //   });
-  //   fetch(process.env.API_URL + '/endpoint/', {
-  //     method: 'POST',
-  //     credentials: "same-origin",
-  //     headers: {
-  //       'Accept': 'application/json',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({
-  //       data: 'data',
-  //     })
-  //   })
-  //     .then(response => response.json())
-  //     .then(data => {
-  //       if (!data.isLoggedIn){
-  //         this.context.handleLoginStatusChange(false);
-  //         return;
-  //       }
-  //       this.setState({
-  //         loading: false,
-  //         data: data
-  //       })
-  //     });
-  // }
-
   componentDidMount() {
     this.getReports();
   }
@@ -96,7 +68,7 @@ class MostDownloadedReports extends React.Component {
         </Typography>
         <Table className={classes.table}>
           <TableHead>
-            <TableRow hover>
+            <TableRow>
               <TableCell>Report Name</TableCell>
               <TableCell numeric>Downloads</TableCell>
             </TableRow>
@@ -104,7 +76,7 @@ class MostDownloadedReports extends React.Component {
           <TableBody>
             {reports.map(report => {
               return (
-                <TableRow key={report._id}>
+                <TableRow hover key={report._id}>
                   <TableCell component="th">
                     {report.filename}
                   </TableCell>
