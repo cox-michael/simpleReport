@@ -46,7 +46,7 @@ app.use(express.json()); // this allows you to send and receive json for API
 
 var fileStoreOptions = {};
 app.use(session({
-	name: "ignore",
+	name: process.env.NODE_ENV, // ensure your environments don't share cookies
 	secret: "try",
 	store: new FileStore(fileStoreOptions),
 	resave: true,
@@ -557,7 +557,7 @@ app.get('//downloadReport/:id', (req, res) => {
 					{'_id': mongodb.ObjectId(req.params.id)},
 					{ $push: {
 						downloads: {
-							timestamp: "$currentDate",
+							timestamp: new Date(),
 							user_id: mongodb.ObjectId(req.session.realUserid)
 						}
 					}},
@@ -593,7 +593,7 @@ app.get('//downloadReport/:id', (req, res) => {
 			{'_id': mongodb.ObjectId(req.params.id)},
 			{ $push: {
 				downloads: {
-					timestamp: "$currentDate",
+					timestamp: new Date(),
 					user_id: mongodb.ObjectId(req.session.realUserid)
 				}
 			}},
