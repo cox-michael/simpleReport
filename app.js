@@ -1019,20 +1019,80 @@ app.post('//getReportsForDef', (req, res) => {
 	console.log('getReportsForDef');
 	console.log(req.body.definitionId);
 	dbo = db.db(process.env.DB_NAME);
-	dbo.collection("reports").aggregate([
+
+	var query = [
 		  { $match: {
 		      definition_id: mongodb.ObjectId(req.body.definitionId)
 		  }},
 			{ $project: {
-		      file: 0
+		      file: 0,
+      		definition_id: 0
+		  }},
+			{ $addFields: {
+		      created: { $toDate: "$_id" }
 		  }},
 			{ $sort: {
 				_id: -1
-			}},
-			{ $addFields: {
-		      created: { $toDate: "$_id" }
-		  }}
-	]).toArray(function(err, docs) {
+			}}
+	]
+
+	if (req.session.analyst) {
+		query.splice( -1, 0, {
+	    $unwind: {
+	      path: "$downloads",
+	      preserveNullAndEmptyArrays: true
+	    }
+	  }, {
+	    $lookup: {
+	      from: 'users',
+	      localField: 'downloads.user_id',
+	      foreignField: '_id',
+	      as: 'downloads.user'
+	    }
+	  }, {
+	    $addFields: {
+	      "downloads.user": {
+	        $arrayElemAt: [
+	          '$downloads.user.ldap.displayName', 0
+	        ]
+	      }
+	    }
+	  }, {
+	    $sort: {
+	      "downloads.timestamp": -1
+	    }
+	  }, {
+	    $group: {
+	      _id: {
+	        _id: '$_id',
+	        filename: '$filename'
+	      },
+	      downloads: {
+	        $push: "$downloads"
+	      }
+	    }
+	  }, {
+	    $addFields: {
+	      _id: "$_id._id",
+	      filename: "$_id.filename",
+	      downloads: {
+	        $filter: {
+	          input: "$downloads",
+	          as: "download",
+	          cond: {
+	            $not: {
+	              $eq: [
+	                {}, "$$download"
+	              ]
+	            }
+	          }
+	        }
+	      }
+	    }
+	  })
+	}
+
+	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
 		res.json({
 			isLoggedIn: req.session.isLoggedIn,
 			success: true,
