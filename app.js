@@ -13,7 +13,7 @@ var { getUser, auth } = require('./authenticate');
 
 const express = require('express');
 const path = require('path'); // this is for serving files
-// const fs = require('fs'); // fs is for reading text files
+const fs = require('fs'); // fs is for files
 // const util = require('util'); // util is for formatting parameters in strings
 
 var mongodb = require('mongodb');
@@ -25,6 +25,7 @@ var FileStore = require('session-file-store')(session);
 
 var assert = require('assert');
 
+const spawn = require("child_process").spawn;
 
 // Initialize MongoDB connection once
 MongoClient.connect(
@@ -496,9 +497,23 @@ app.get('//mostActiveUsersByDownloads', (req, res) => {
 	});
 });
 
+app.get('//downloadTest/:filename', (req, res) => {
+	log(req.session.realUn, req.originalUrl);
+	if (!req.session.isLoggedIn) {
+		res.json(notLoggedIn);
+		return;
+	} else if (!req.session.analyst) {
+		res.json(notPermitted);
+		return;
+	}
+
+	const filename = path.join(__dirname + '/tmp/' + req.params.filename);
+	res.download(filename);
+});
+
 app.get('//downloadReport/:id', (req, res) => {
 	log(req.session.realUn, req.originalUrl);
-	if (!req.session.isLoggedIn){
+	if (!req.session.isLoggedIn) {
 		res.redirect(process.env.API_URL + '/download/' + req.params.id);
 		return;
 	} else if (!req.session.analyst) {
@@ -1027,8 +1042,78 @@ app.post('//getReportsForDef', (req, res) => {
 	});
 });
 
+app.post('//runTest', (req, res) => {
+if (!req.session.isLoggedIn) {
+	res.json(notLoggedIn);
+	return;
+} else if (!req.session.analyst) {
+	res.json(notPermitted);
+	return;
+}
+	log(req.session.realUn, req.originalUrl);
+	const filename = path.join(__dirname + '/tmp/' + req.session.realUserid + '.xlsx');
 
+	// Delete file if it exists so that we will know that the new one was created
+	fs.stat(filename, (err, stats) => {
+		if (err && err.errno == -2) {
+			// File does not exist, proceed
+			return;
+		}
+		if (err) {
+		  return console.error(err);
+		}
 
+		fs.unlink(filename, (err) => {
+		   if(err) return console.log(err);
+		   console.log('file deleted successfully');
+		});
+	})
+
+	// Execute Python script
+	const pythonProcess = spawn('python3',
+	 														[path.join(__dirname + '/run_test.py'),
+															 JSON.stringify(req.body.report),
+														 	 req.session.realUserid]);
+
+	pythonProcess.stdout.on('data', (data) => {
+		console.log('python response:');
+		console.log(data.toString());
+		
+		// return res.json({
+		// 	isLoggedIn: req.session.isLoggedIn,
+		// 	success: false,
+		// 	messages: ['An error occurred while generating the report: ' +
+		// 	 					 data.toString()],
+		// 	// reports: docs
+		// })
+	})
+
+	pythonProcess.on('exit', (code, signal) => {
+		console.log('python exited');
+		fs.stat(filename, (err, stats) => {
+			if (err && err.errno == -2) {
+				return res.json({
+					isLoggedIn: req.session.isLoggedIn,
+			 		success: false,
+			 		messages: ['An error occurred while generating the report'],
+			 		// reports: docs
+				})
+			}
+			if (err) {
+			   return console.error(err);
+			}
+
+			const downloadUrl = (process.env.API_URL + "/downloadTest/" +
+			 										 req.session.realUserid + '.xlsx');
+			res.json({
+				isLoggedIn: req.session.isLoggedIn,
+				success: true,
+				messages: [],
+				url: downloadUrl,
+			})
+		})
+	})
+});
 
 
 

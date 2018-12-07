@@ -216,6 +216,53 @@ class EditReport extends React.Component {
 		})
 	}
 
+	runTest = () => {
+		this.setState({
+		  testing: true,
+		})
+		var report = {
+						name: this.state.rname,
+						description: this.state.rdesc,
+						print_report_name_on_every_sheet: this.state.rprint,
+						print_sheet_name: this.state.sprint,
+						dept: this.state.dept,
+						requested_by: this.state.requestedBy,
+						sheets: this.state.sheets.slice(0, -1),
+						schedules: this.state.schedules,
+						permissions: this.state.permissions,
+				}
+
+		fetch(process.env.API_URL + '/runTest', {
+			method: 'POST',
+			credentials: "same-origin",
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				report: report,
+			})
+		})
+		.then(response => response.json())
+		.then(data => {
+			this.setState({
+			  testing: false,
+			})
+			var snackMsg = data.success ? 'Report generated' : data.messages[0]
+			var snackType = data.success ? 'success' : 'error'
+
+			this.context.openSnack(snackMsg, snackType);
+
+			if (data.success) {
+				window.open(data.url, "_self");
+			}
+			// if (!data.isLoggedIn){
+			// 	this.context.handleLoginStatusChange(false);
+			// 	return;
+			// }
+		});
+	}
+
 	handleSubmit(openSnack, e) {
 		e.preventDefault();
 		this.setState({
@@ -255,8 +302,11 @@ class EditReport extends React.Component {
 					return;
 				}
 				var snackMsg = data.success ? 'Report saved successfully' : 'Failed to save report'
-				openSnack(snackMsg);
-				this.setState({saved: data.success});
+				var snackType = data.success ? 'success' : 'error'
+				openSnack(snackMsg, snackType);
+				this.setState({
+					saved: data.success,
+				});
 			});
 	}
 
@@ -415,22 +465,28 @@ class EditReport extends React.Component {
 							</div>
 						</TabContainer>
 						{ /*this.state.tab === 0 && <TabContainer>Item One</TabContainer> */}
-
-
-		  				<SessionContext.Consumer>
-							{session => (
-								<Button
-									type="submit"
-									variant="contained"
-									color="primary"
-									className={classNames(classes.button, classes.floating)}
-									onClick={(e) => this.handleSubmit(session.openSnack, e)}
-								>
-									<SaveIcon className={classNames(classes.leftIcon, classes.iconSmall)} />
-									Save
-								</Button>
-							)}
-							</SessionContext.Consumer>
+						<div className={classes.floating}>
+						<Button
+							type="submit"
+							variant="contained"
+							color="primary"
+							className={classes.button}
+							onClick={(e) => this.handleSubmit(this.context.openSnack, e)}
+						>
+							<SaveIcon className={classNames(classes.leftIcon, classes.iconSmall)} />
+							Save
+						</Button>
+						<br/>
+						<Button
+							variant="contained"
+							color="secondary"
+							className={classes.button}
+							onClick={this.runTest}
+						>
+							<Description className={classNames(classes.leftIcon, classes.iconSmall)} />
+							Test
+						</Button>
+						</div>
 					</Paper>
 
 
