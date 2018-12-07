@@ -22,6 +22,8 @@ import { SessionContext, SessionProvider } from "./session";
 import EditTables from './edit_report/edit_tables';
 import EditSchedules from './edit_report/edit_schedules';
 import EditPermissions from './edit_report/edit_permissions';
+import { Description } from '@material-ui/icons';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = theme => ({
 	layout: {
@@ -60,13 +62,27 @@ const styles = theme => ({
 		justifyContent: 'flex-end',
 	},
 	button: {
-		marginTop: theme.spacing.unit * 3,
+		marginTop: theme.spacing.unit,
 		marginLeft: theme.spacing.unit,
 	},
   floating: {
     position: 'fixed',
-    top: theme.spacing.unit * 8,
+    top: theme.spacing.unit * 11,
     right: theme.spacing.unit * 3,
+  },
+  progress: {
+    // color: green[500],
+    position: 'relative',
+    top: -78, // 15 without <br />
+    left: 43, // -60 without <br />
+    zIndex: 10000,
+  },
+  progress2: {
+    // color: green[500],
+    position: 'relative',
+    top: -34, // 15 without <br />
+    left: 43, // -60 without <br />
+    zIndex: 10000,
   },
 });
 
@@ -96,6 +112,8 @@ class EditReport extends React.Component {
 			loading: loading,
 			newReport: !loading,
 			attempted: false,
+			attempting: false,
+			testing: false,
 			username: "",
 			password: "",
 			data: [],
@@ -267,6 +285,7 @@ class EditReport extends React.Component {
 		e.preventDefault();
 		this.setState({
 			attempted: true,
+			attempting: true,
 			pw: ''
 		});
 
@@ -306,6 +325,7 @@ class EditReport extends React.Component {
 				openSnack(snackMsg, snackType);
 				this.setState({
 					saved: data.success,
+					attempting: false,
 				});
 			});
 	}
@@ -470,6 +490,7 @@ class EditReport extends React.Component {
 							type="submit"
 							variant="contained"
 							color="primary"
+							disabled={this.state.attempting}
 							className={classes.button}
 							onClick={(e) => this.handleSubmit(this.context.openSnack, e)}
 						>
@@ -480,12 +501,20 @@ class EditReport extends React.Component {
 						<Button
 							variant="contained"
 							color="secondary"
+							disabled={this.state.testing}
 							className={classes.button}
 							onClick={this.runTest}
 						>
 							<Description className={classNames(classes.leftIcon, classes.iconSmall)} />
 							Test
 						</Button>
+						<br/>
+						{ this.state.attempting &&
+							 	<CircularProgress size={30} className={classes.progress} />
+						}
+						{ this.state.testing &&
+							 	<CircularProgress size={30} className={classes.progress2} />
+						}
 						</div>
 					</Paper>
 
