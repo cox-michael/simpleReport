@@ -1,11 +1,9 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import Snackbar from '@material-ui/core/Snackbar';
-import CloseIcon from '@material-ui/icons/Close';
-import IconButton from '@material-ui/core/IconButton';
 import ViewSingleReport from './view_single_report';
 import Dialog from '@material-ui/core/Dialog';
 import { Redirect } from 'react-router';
+import Snack from './snackbar.js';
 
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import indigo from '@material-ui/core/colors/indigo';
@@ -14,6 +12,7 @@ import red from '@material-ui/core/colors/red';
 import amber from '@material-ui/core/colors/amber';
 import orange from '@material-ui/core/colors/orange';
 import blue from '@material-ui/core/colors/blue';
+import green from '@material-ui/core/colors/green';
 
 // All the following keys are optional.
 // We try our best to provide a great default value.
@@ -66,13 +65,26 @@ class SessionProvider extends React.Component {
 		}
 	}
 
-	openSnack = (msg) => {
-    this.setState({
-			snack: {
-				open: true,
-				msg: msg,
-			}
-		});
+	openSnack = (msg, type='info') => {
+
+    const newSnack = () => {
+      this.setState({
+  			snack: {
+  				open: true,
+  				msg: msg,
+          type: type,
+  			}
+  		});
+    }
+
+    if (this.state.snack.open) {
+      this.closeSnack();
+      setTimeout(() => {
+        newSnack();
+      }, 200);
+    } else {
+      newSnack();
+    }
 	}
 
   closeSnack = (event, reason) => {
@@ -80,11 +92,10 @@ class SessionProvider extends React.Component {
       return;
     }
 
+    var snack = this.state.snack;
+    snack.open = false;
     this.setState({
-			snack: {
-				open: false,
-				msg: '',
-			}
+			snack: snack,
 		});
   };
 
@@ -138,6 +149,7 @@ class SessionProvider extends React.Component {
 		// 	console.log(process.env.API_URL + '/schedule/' + this.state.report.report._id);
 		// 	return <Redirect push to={process.env.API_URL + '/schedule/' + this.state.report.report._id} />;
 		// }
+
 		return (
 			<SessionContext.Provider value={this.state}>
 				<MuiThemeProvider theme={theme}>
@@ -149,21 +161,13 @@ class SessionProvider extends React.Component {
 						fn={{closeReport: this.closeReport}}
             analyst={this.props.loginState.analyst}
 					/>
-					<Snackbar
-						anchorOrigin={{ vertical: 'bottom', horizontal: 'right', }}
-						open={this.state.snack.open}
-						autoHideDuration={6000}
-						onClose={this.closeSnack}
-						ContentProps={{ 'aria-describedby': 'message-id', }}
-						message={<span id="message-id">{this.state.snack.msg}</span>}
-						action={[
-							<IconButton key="close" aria-label="Close" color="inherit"
-								onClick={this.closeSnack}
-							>
-								<CloseIcon />
-							</IconButton>,
-						]}
-					/>
+
+          <Snack
+            open={this.state.snack.open}
+            msg={this.state.snack.msg}
+            type={this.state.snack.type}
+            closeSnack={this.closeSnack} />
+
 				</MuiThemeProvider>
 			</SessionContext.Provider>
 		)
