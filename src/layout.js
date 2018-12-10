@@ -210,41 +210,31 @@ class Layout extends React.Component {
 							<Link to={process.env.API_URL + "/schedules"}>
 								<ListItem button key="Schedules"><ListItemIcon><AccessTime /></ListItemIcon><ListItemText primary="Schedules" /></ListItem>
 							</Link>
-						</List>
-						<Divider />
-						<List>
+						  <Divider />
 							<Link to={process.env.API_URL + "/requests"}>
 								<ListItem button key="Feature Request"><ListItemIcon><HowToVote /></ListItemIcon><ListItemText primary="Feature Request" /></ListItem>
 							</Link>
-						</List>
             { this.context.loginState.superpower &&
-						<List>
 							<Link to={process.env.API_URL + "/superpower"}>
 								<ListItem button key="Superpower"><ListItemIcon><Fingerprint /></ListItemIcon><ListItemText primary="Superpower" /></ListItem>
 							</Link>
-						</List>
             }
             { /*
-						<List>
 							<Link to={process.env.API_URL + "/button"}>
 								<ListItem button key="Data Sources"><ListItemIcon><Transform /></ListItemIcon><ListItemText primary="Data Sources" /></ListItem>
 							</Link>
-						</List>
             */ }
             { /*
-						<List>
 							<Link to={process.env.API_URL + "/button"}>
 								<ListItem button key="Data Sources 2"><ListItemIcon><MergeType /></ListItemIcon><ListItemText primary="Data Sources 2" /></ListItem>
 							</Link>
-						</List>
             */ }
             { this.context.loginState.analyst &&
-						<List>
 							<Link to={process.env.API_URL + "/analytics"}>
 								<ListItem button key="Site Analytics"><ListItemIcon><InsertChart /></ListItemIcon><ListItemText primary="Site Analytics" /></ListItem>
 							</Link>
-						</List>
             }
+						</List>
 					</Drawer>
 					<main className={classes.content}>
 						<div className={classes.toolbar} />
