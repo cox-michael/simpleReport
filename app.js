@@ -1037,7 +1037,7 @@ app.post('//getReportsForDef', (req, res) => {
 	]
 
 	if (req.session.analyst) {
-		query.splice( -1, 0, {
+		query.splice( -2, 0, {
 	    $unwind: {
 	      path: "$downloads",
 	      preserveNullAndEmptyArrays: true
@@ -1092,6 +1092,8 @@ app.post('//getReportsForDef', (req, res) => {
 	  })
 	}
 
+	console.log(query);
+
 	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
 		res.json({
 			isLoggedIn: req.session.isLoggedIn,
@@ -1138,7 +1140,7 @@ if (!req.session.isLoggedIn) {
 	pythonProcess.stdout.on('data', (data) => {
 		console.log('python response:');
 		console.log(data.toString());
-		
+
 		// return res.json({
 		// 	isLoggedIn: req.session.isLoggedIn,
 		// 	success: false,
