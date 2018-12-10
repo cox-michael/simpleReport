@@ -107,7 +107,7 @@ class ViewSingleReport extends React.Component {
 										<TableRow key={row._id} hover>
 											<TableCell className={classes.noWrap}>
 												<Button color="primary" mini>
-													<GetApp />
+													<GetApp onClick={e => this.download(row._id, e)} />
 												</Button>
 												{row.filename}
 											</TableCell>
