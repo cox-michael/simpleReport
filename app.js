@@ -702,14 +702,13 @@ app.post('//create_new_report', (req, res) => {
 		return;
 	}
 
-	console.log('create_new_report');
 	dbo = db.db(process.env.DB_NAME);
 	dbo.collection(process.env.DEF_TABLE).insertOne(req.body.report, function(err, result) {
 		assert.equal(err, null);
 		assert.equal(1, result.result.n);
 		assert.equal(1, result.ops.length);
 		console.log('Inserted 1 document into definitions');
-		console.log(result.insertedId)
+		// console.log(result.insertedId)
 		// console.log(result);
 		res.json({
 			isLoggedIn: req.session.isLoggedIn,
@@ -721,14 +720,13 @@ app.post('//create_new_report', (req, res) => {
 });
 
 app.post('//createNewRequest', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
 	log(req);
 	if (!req.session.isLoggedIn) {
 		res.json(notLoggedIn);
 		return;
 	}
 
-	console.log('createNewRequest');
+	// console.log('createNewRequest');
 	dbo = db.db(process.env.DB_NAME);
 	const request = {
 		description: req.body.description,
@@ -742,7 +740,7 @@ app.post('//createNewRequest', (req, res) => {
 		assert.equal(1, result.result.n);
 		assert.equal(1, result.ops.length);
 		console.log('Inserted 1 document into requests');
-		console.log(result.insertedId)
+		// console.log(result.insertedId)
 		// console.log(result);
 		res.json({
 			isLoggedIn: req.session.isLoggedIn,
@@ -904,7 +902,7 @@ app.post('//unstar', (req, res) => {
 		return;
 	}
 
-	console.log(req.body);
+	// console.log(req.body);
 	dbo = db.db(process.env.DB_NAME);
 	dbo.collection("users").findOneAndUpdate(
 		{ _id: mongodb.ObjectId(req.session.userid) },
@@ -915,7 +913,6 @@ app.post('//unstar', (req, res) => {
 		// assert.equal(1, result.result.n);
 		// assert.equal(1, result.ops.length);
 		console.log('Removed 1 starred from users');
-		console.log(result)
 		// console.log(result);
 		res.json({
 			isLoggedIn: req.session.isLoggedIn,
@@ -984,7 +981,7 @@ app.post('//returnDefinition', (req, res) => {
 		return;
 	}
 
-	console.log('getReport');
+	// console.log('getReport');
 	dbo = db.db(process.env.DB_NAME);
 	dbo.collection(process.env.DEF_TABLE).aggregate([
     {
@@ -1050,8 +1047,8 @@ app.post('//getReportsForDef', (req, res) => {
 		return;
 	}
 
-	console.log('getReportsForDef');
-	console.log(req.body.definitionId);
+	// console.log('getReportsForDef');
+	// console.log(req.body.definitionId);
 	dbo = db.db(process.env.DB_NAME);
 
 	var query = [
@@ -1126,7 +1123,6 @@ app.post('//getReportsForDef', (req, res) => {
 	  })
 	}
 
-	console.log(query);
 	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
 		res.json({
 			isLoggedIn: req.session.isLoggedIn,
