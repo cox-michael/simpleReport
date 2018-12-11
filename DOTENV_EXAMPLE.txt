@@ -1,0 +1,26 @@
+NODE_ENV=development
+
+HOST=127.0.0.1
+PORT=3000
+API_URL=/
+
+DB_HOST=localhost
+DB_USER=admin
+DB_PASSWORD=password
+DB_NAME=simpleReport
+DEF_TABLE=definitions
+POOLING_PORT=3001
+
+# for Python
+DOMAIN=your-site.com
+ADMIN=admin
+# WIN_PATH=/path/to/simpleReport/
+LINUX_PATH=/path/to/simpleReport/
+WIN_IP=127.0.0.1
+LINUX_IP=localhost
+
+# for LDAP
+ANALYST_DEPT="business intelligence"
+
+# for email
+FULL_URL=your-site.com/
