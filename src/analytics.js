@@ -5,6 +5,7 @@ import { SessionContext } from "./session";
 import Grid from '@material-ui/core/Grid';
 import MostDownloadedReports from './analytics/most_downloaded_reports';
 import MostActiveUsersByDownloads from './analytics/most_active_users_by_downloads';
+import ReportsGeneratedByDate from './analytics/reports_generated_by_date';
 import Paper from '@material-ui/core/Paper';
 
 const styles = theme => ({
@@ -37,6 +38,7 @@ class Analytics extends React.Component {
       >
         <Paper className={classes.paper}><MostDownloadedReports /></Paper>
         <Paper className={classes.paper}><MostActiveUsersByDownloads /></Paper>
+        <Paper className={classes.paper}><ReportsGeneratedByDate /></Paper>
       </Grid>
     );
   }

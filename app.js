@@ -525,6 +525,71 @@ app.get('//mostActiveUsersByDownloads', (req, res) => {
 	});
 });
 
+app.get('//reportsGeneratedByDate', (req, res) => {
+	log(req);
+	if (!req.session.isLoggedIn) {
+		res.status(401);
+		res.json(notLoggedIn);
+		return;
+	} else if (!req.session.analyst) {
+		res.status(403);
+		res.json(notPermitted);
+		return;
+	}
+
+	dbo = db.db(process.env.DB_NAME);
+	var query = [
+	  {
+	    $project: {
+	      created: {
+	        $dateFromString: {
+	          dateString: {
+	            $dateToString: {
+	              format: "%Y-%m-%d",
+	              date: {
+	                $toDate: "$_id"
+	              },
+	              timezone: "America/New_York"
+	            }
+	          },
+	          timezone: "America/New_York"
+	        }
+	      }
+	    }
+	  }, {
+	    $group: {
+	      _id: {
+	        created: "$created"
+	      },
+	      generated: {
+	        $push: "$_id"
+	      }
+	    }
+	  }, {
+	    $project: {
+	      created: "$_id.created",
+	      generated: {
+	        $size: "$generated"
+	      },
+	      _id: 0
+	    }
+	  }, {
+	    $sort: {
+	      created: -1
+	    }
+	  }
+	]
+
+	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
+		res.json({
+			isLoggedIn: req.session.isLoggedIn,
+			success: true,
+			messages: [],
+			data: docs
+		})
+	});
+});
+
 app.get('//downloadTest/:filename', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn) {
