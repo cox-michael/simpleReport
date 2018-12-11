@@ -1229,8 +1229,14 @@ const processLogin = (session, body) => {
 			.then(auth)
 			.then(success => {
 				session.isLoggedIn = true;
-				if (session.un == process.env.ADMIN) {
+
+				if (session.ldap.dn.toLowerCase().includes(process.env.ANALYST_DEPT)) {
+				// TODO: this is a temporary change until I figure out
+				// who I want to have superpowers
+				// if (session.un == process.env.ADMIN) {
 					session.superpower = true;
+				} else {
+					session.superpower = false;
 				}
 				if (session.ldap.dn.toLowerCase().includes(process.env.ANALYST_DEPT)) {
 					session.analyst = true;
