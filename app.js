@@ -67,7 +67,7 @@ const getLocations = (req, res) => {
 apiRouter.get('/locations', getLocations);
 app.use('/', apiRouter);
 
-var log = (user, url) => {
+var log = (req) => {
 	var d = new Date();
 	var timestamp = (
 		d.getFullYear().toString() +
@@ -78,9 +78,17 @@ var log = (user, url) => {
 		":" + (d.getSeconds().toString().length==2?d.getSeconds().toString():"0"+d.getSeconds().toString())
 	);
 
+	if (typeof(req.session) !== "undefined" &&
+	 		typeof(req.session.realUn) !== "undefined") {
+		var user = req.session.realUn;
+	} else {
+		var user = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+	}
+
+
 	var msg = '[' + timestamp + ']'
 	msg += ' ' + user;
-	msg += ' ' + url;
+	msg += ' ' + req.originalUrl;
 
 	console.log(msg)
 }
@@ -105,42 +113,52 @@ const notPermitted = {
 // GET #########################################################################
 
 app.get('/', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 
 app.get('//', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 
 app.get('//destroy', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	req.session.destroy();
 	res.end('Session destroyed!');
 });
 
 app.get('//removeAnalyst', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	req.session.analyst = false;
 	req.session.save();
 	res.end('not an analyst anymore');
 });
 
 app.get('//removeSuperpower', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	req.session.superpower = false;
 	req.session.save();
 	res.end('not a hero anymore');
 });
 
 app.get('//dist/main.js', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	res.sendFile(path.join(__dirname + '/dist/main.js'));
 });
 
 app.get('//getReports', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
+	if (!req.session.isLoggedIn) {
+		res.status(401);
+		res.json(notLoggedIn);
+		return;
+	} else if (!req.session.analyst) {
+		res.status(403);
+		res.json(notPermitted);
+		return;
+	}
+
 	dbo = db.db(process.env.DB_NAME);
 	var query = [
 		{
@@ -225,8 +243,9 @@ app.get('//getReports', (req, res) => {
 });
 
 app.get('//getRequests', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
-	if (!req.session.isLoggedIn){
+	log(req);
+	if (!req.session.isLoggedIn) {
+		res.status(401);
 		res.json(notLoggedIn)
 		return;
 	}
@@ -304,7 +323,12 @@ app.get('//getRequests', (req, res) => {
 });
 
 app.get('//getSchedules', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
+	if (!req.session.isLoggedIn) {
+		res.status(401);
+		res.json(notLoggedIn)
+		return;
+	}
 	dbo = db.db(process.env.DB_NAME);
 	var query = [
 	  {
@@ -363,11 +387,13 @@ app.get('//getSchedules', (req, res) => {
 });
 
 app.get('//mostDownloadedReports', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn) {
+		res.status(401);
 		res.json(notLoggedIn);
 		return;
 	} else if (!req.session.analyst) {
+		res.status(403);
 		res.json(notPermitted);
 		return;
 	}
@@ -431,11 +457,13 @@ app.get('//mostDownloadedReports', (req, res) => {
 });
 
 app.get('//mostActiveUsersByDownloads', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn) {
+		res.status(401);
 		res.json(notLoggedIn);
 		return;
 	} else if (!req.session.analyst) {
+		res.status(403);
 		res.json(notPermitted);
 		return;
 	}
@@ -498,11 +526,13 @@ app.get('//mostActiveUsersByDownloads', (req, res) => {
 });
 
 app.get('//downloadTest/:filename', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn) {
+		res.status(401);
 		res.json(notLoggedIn);
 		return;
 	} else if (!req.session.analyst) {
+		res.status(403);
 		res.json(notPermitted);
 		return;
 	}
@@ -512,8 +542,9 @@ app.get('//downloadTest/:filename', (req, res) => {
 });
 
 app.get('//downloadReport/:id', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn) {
+		console.log('redirecting...');
 		res.redirect(process.env.API_URL + '/download/' + req.params.id);
 		return;
 	} else if (!req.session.analyst) {
@@ -566,7 +597,7 @@ app.get('//downloadReport/:id', (req, res) => {
 				res.redirect(process.env.API_URL + '/notPermitted');
 				return;
 			} else { // TODO clean up these two else statements. They do the same thing
-				console.log('\n\ndownloading report');
+				// console.log('\n\ndownloading report');
 				dbo = db.db(process.env.DB_NAME);
 				dbo.collection("reports").findOneAndUpdate(
 					{'_id': mongodb.ObjectId(req.params.id)},
@@ -602,7 +633,7 @@ app.get('//downloadReport/:id', (req, res) => {
 			}
 		});
 	} else { // TODO clean up these two else statements. They do the same thing
-		console.log('\n\ndownloading report');
+		// console.log('\n\ndownloading report');
 		dbo = db.db(process.env.DB_NAME);
 		dbo.collection("reports").findOneAndUpdate(
 			{'_id': mongodb.ObjectId(req.params.id)},
@@ -636,13 +667,13 @@ app.get('//downloadReport/:id', (req, res) => {
 	}
 });
 
-app.get('//session_data', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+app.get('//sessionData', (req, res) => {
+	log(req);
 	res.json(req.session);
 });
 
 app.get('//expires', function(req, res, next) {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
   if (req.session.views) {
     req.session.views++
     res.setHeader('Content-Type', 'text/html')
@@ -660,11 +691,13 @@ app.get('//expires', function(req, res, next) {
 // POST ########################################################################
 
 app.post('//create_new_report', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn) {
+		res.status(401);
 		res.json(notLoggedIn);
 		return;
 	} else if (!req.session.analyst) {
+		res.status(403);
 		res.json(notPermitted);
 		return;
 	}
@@ -689,6 +722,7 @@ app.post('//create_new_report', (req, res) => {
 
 app.post('//createNewRequest', (req, res) => {
 	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn) {
 		res.json(notLoggedIn);
 		return;
@@ -720,7 +754,7 @@ app.post('//createNewRequest', (req, res) => {
 });
 
 app.post('//update_report', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -752,7 +786,7 @@ app.post('//update_report', (req, res) => {
 });
 
 app.post('//subscribe', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -779,7 +813,7 @@ app.post('//subscribe', (req, res) => {
 });
 
 app.post('//notify', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -806,7 +840,7 @@ app.post('//notify', (req, res) => {
 });
 
 app.post('//unsubscribe', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -837,7 +871,7 @@ app.post('//unsubscribe', (req, res) => {
 });
 
 app.post('//star', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -864,7 +898,7 @@ app.post('//star', (req, res) => {
 });
 
 app.post('//unstar', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -893,7 +927,7 @@ app.post('//unstar', (req, res) => {
 });
 
 app.post('//requestVote', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -941,7 +975,7 @@ app.post('//requestVote', (req, res) => {
 });
 
 app.post('//returnDefinition', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn) {
 		res.json(notLoggedIn);
 		return;
@@ -1010,7 +1044,7 @@ app.post('//returnDefinition', (req, res) => {
 });
 
 app.post('//getReportsForDef', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
 		return;
@@ -1093,7 +1127,6 @@ app.post('//getReportsForDef', (req, res) => {
 	}
 
 	console.log(query);
-
 	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
 		res.json({
 			isLoggedIn: req.session.isLoggedIn,
@@ -1112,7 +1145,7 @@ if (!req.session.isLoggedIn) {
 	res.json(notPermitted);
 	return;
 }
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	const filename = path.join(__dirname + '/tmp/' + req.session.realUserid + '.xlsx');
 
 	// Delete file if it exists so that we will know that the new one was created
@@ -1268,7 +1301,7 @@ const processLogin = (session, body) => {
 };
 
 app.post('//login', function(req, res) {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	req.session.realUn = req.body.username;
 
 	processLogin(req.session, req.body)
@@ -1287,13 +1320,13 @@ app.post('//login', function(req, res) {
 });
 
 app.get('//logout', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	req.session.isLoggedIn = false;
 	res.redirect(process.env.API_URL + '/');
 });
 
 app.get('//loggedIn', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if (req.session.isLoggedIn) {
 		console.log(req.session.un + ' is logged in');
 		console.log('The displayName is ' + req.session.ldap.displayName);
@@ -1315,7 +1348,7 @@ app.get('//loggedIn', (req, res) => {
 });
 
 app.post('//superpower', function(req, res) {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	if(req.session.isLoggedIn && req.session.superpower) {
 		console.log('superpower switching to: ' + req.body.username);
 		const realUserid = req.session.realUserid;
@@ -1343,11 +1376,11 @@ app.post('//superpower', function(req, res) {
 
 // This is for React-Router to work
 app.get('*', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 app.get('/*/*', (req, res) => {
-	log(req.session.realUn, req.originalUrl);
+	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 
