@@ -57,7 +57,7 @@ class Snack extends React.Component {
   //   this.setState({
   //     loading: true,
   //   });
-  //   fetch(process.env.API_URL + '/endpoint', {
+  //   fetch(process.env.API_URL + 'endpoint', {
   //     credentials: "same-origin"
   //   })
   //   .then(response => response.json())
@@ -77,7 +77,7 @@ class Snack extends React.Component {
   //   this.setState({
   //     loading: true,
   //   });
-  //   fetch(process.env.API_URL + '/endpoint/', {
+  //   fetch(process.env.API_URL + 'endpoint/', {
   //     method: 'POST',
   //     credentials: "same-origin",
   //     headers: {

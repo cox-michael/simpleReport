@@ -58,23 +58,23 @@ class DefinitionsTable extends React.Component {
 
 	handleAddRemove = (action, openSnack, reload, { target }) => {
 		if (action == 'subscribe') {
-			var endpoint = process.env.API_URL + '/subscribe'
+			var endpoint = process.env.API_URL + 'subscribe'
 			var success = 'Subscribed successfully'
 			var failure = 'Failed to subscribe'
 		} else if (action == 'unsubscribe') {
-			var endpoint = process.env.API_URL + '/unsubscribe'
+			var endpoint = process.env.API_URL + 'unsubscribe'
 			var success = 'Unsubscribed successfully'
 			var failure = 'Failed to unsubscribe'
 		} else if (action == 'notify') {
-			var endpoint = process.env.API_URL + '/notify'
+			var endpoint = process.env.API_URL + 'notify'
 			var success = 'Immediate notification request saved successfully'
 			var failure = 'Failed to save immediate notification request'
 		} else if (action == 'star') {
-			var endpoint = process.env.API_URL + '/star'
+			var endpoint = process.env.API_URL + 'star'
 			var success = 'Added to favorites successfully'
 			var failure = 'Failed to add favorite'
 		} else if (action == 'unstar') {
-			var endpoint = process.env.API_URL + '/unstar'
+			var endpoint = process.env.API_URL + 'unstar'
 			var success = 'Removed from favorites successfully'
 			var failure = 'Failed to remove favorite'
 		}

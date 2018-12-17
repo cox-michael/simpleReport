@@ -42,7 +42,7 @@ class Schedules extends React.Component {
 	}
 
 	reload = (keep='') => {
-		fetch(process.env.API_URL + '/getSchedules', {
+		fetch(process.env.API_URL + 'api/getSchedules', {
 			credentials: "same-origin"
 		})
 		.then(response => response.json())
@@ -52,6 +52,7 @@ class Schedules extends React.Component {
 				this.context.handleLoginStatusChange(false);
 				return;
 			}
+			data.schedules = data.data;
 			this.setState({
 				data: data,
 				keep: keep,

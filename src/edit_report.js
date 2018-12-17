@@ -250,7 +250,7 @@ class EditReport extends React.Component {
 						permissions: this.state.permissions,
 				}
 
-		fetch(process.env.API_URL + '/runTest', {
+		fetch(process.env.API_URL + 'runTest', {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {
@@ -303,7 +303,7 @@ class EditReport extends React.Component {
 				}
 		if (!this.state.newReport) report._id = this.props.match.params.report_id;
 
-		fetch(process.env.API_URL + '/' + endpoint, {
+		fetch(process.env.API_URL + endpoint, {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {
@@ -332,7 +332,7 @@ class EditReport extends React.Component {
 
 	componentDidMount() {
 		if (!this.state.newReport){
-			fetch(process.env.API_URL + '/returnDefinition', {
+			fetch(process.env.API_URL + 'returnDefinition', {
 				method: 'POST',
 				credentials: "same-origin",
 				headers: {
@@ -349,7 +349,7 @@ class EditReport extends React.Component {
 					this.context.handleLoginStatusChange(false);
 					return;
 				} else if (data.messages[0] == 'You do not have permissions to do this') {
-					window.location.href = process.env.API_URL + '/notPermitted';
+					window.location.href = process.env.API_URL + 'notPermitted';
 				}
 
 				this.setState({

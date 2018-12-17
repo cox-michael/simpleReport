@@ -27,7 +27,7 @@ class App extends React.Component {
 	}
 
 	componentDidMount() {
-		fetch(process.env.API_URL + '/loggedIn', {
+		fetch(process.env.API_URL + 'loggedIn', {
 			credentials: "same-origin"
 		})
 			.then(response => response.json())
