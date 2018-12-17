@@ -14,5 +14,5 @@ authenticate.js
 /src/delete
 /tmp
 /notes
-*/__pycache__
+*__pycache__
 *.cache
