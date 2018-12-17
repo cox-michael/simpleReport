@@ -60,12 +60,12 @@ app.use(session({
 }));
 app.use(express.static('static'));
 
-const apiRouter = express.Router();
-const getLocations = (req, res) => {
-	res.sendFile(process.cwd() + '/data/locations.json');
-}
-apiRouter.get('/locations', getLocations);
-app.use('/', apiRouter);
+// const apiRouter = express.Router();
+// const getLocations = (req, res) => {
+// 	res.sendFile(process.cwd() + '/data/locations.json');
+// }
+// apiRouter.get('/locations', getLocations);
+// app.use('/', apiRouter);
 
 var log = (req) => {
 	var d = new Date();
@@ -222,47 +222,47 @@ const apiHandler = (req) => {
 
 // GET #########################################################################
 
+// TODO: remove this after full production release to public
+app.get('//*', (req, res) => { // reroute from old domain
+	res.redirect('http://' + process.env.FULL_URL + req.originalUrl.substr(2));
+})
+
 app.get('/', (req, res) => {
 	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
 
-app.get('//', (req, res) => {
-	log(req);
-	res.sendFile(path.join(__dirname + '/dist/index.html'));
-});
-
-app.get('//dist/main.js', (req, res) => {
+app.get('/dist/main.js', (req, res) => {
 	log(req);
 	res.sendFile(path.join(__dirname + '/dist/main.js'));
 });
 
-app.get('//destroy', (req, res) => {
+app.get('/destroy', (req, res) => {
 	log(req);
 	req.session.destroy();
 	res.end('Session destroyed!');
 });
 
-app.get('//removeAnalyst', (req, res) => {
+app.get('/removeAnalyst', (req, res) => {
 	log(req);
 	req.session.analyst = false;
 	req.session.save();
 	res.end('not an analyst anymore');
 });
 
-app.get('//removeSuperpower', (req, res) => {
+app.get('/removeSuperpower', (req, res) => {
 	log(req);
 	req.session.superpower = false;
 	req.session.save();
 	res.end('not a hero anymore');
 });
 
-app.get('//sessionData', (req, res) => {
+app.get('/sessionData', (req, res) => {
 	log(req);
 	res.json(req.session);
 });
 
-app.get('//expires', function(req, res, next) {
+app.get('/expires', function(req, res, next) {
 	log(req);
   if (req.session.views) {
     req.session.views++
@@ -276,7 +276,7 @@ app.get('//expires', function(req, res, next) {
   }
 })
 
-app.all('//api/:handle', (req, res) => {
+app.all('/api/:handle', (req, res) => {
 	log(req);
 	apiHandler(req)
 	.then(response => res.json(response))
@@ -286,7 +286,7 @@ app.all('//api/:handle', (req, res) => {
 	})
 })
 
-app.get('//downloadTest/:filename', (req, res) => {
+app.get('/downloadTest/:filename', (req, res) => {
 	log(req);
 	checkPermissions(req, 2)
 	.then(() => {
@@ -295,7 +295,7 @@ app.get('//downloadTest/:filename', (req, res) => {
 	})
 });
 
-app.get('//downloadReport/:id', (req, res) => {
+app.get('/downloadReport/:id', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn) {
 		console.log('redirecting...');
@@ -429,7 +429,7 @@ app.get('//downloadReport/:id', (req, res) => {
 
 // POST ########################################################################
 
-app.post('//create_new_report', (req, res) => {
+app.post('/create_new_report', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn) {
 		res.status(401);
@@ -458,7 +458,7 @@ app.post('//create_new_report', (req, res) => {
 	});
 });
 
-app.post('//createNewRequest', (req, res) => {
+app.post('/createNewRequest', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn) {
 		res.json(notLoggedIn);
@@ -490,7 +490,7 @@ app.post('//createNewRequest', (req, res) => {
 	});
 });
 
-app.post('//update_report', (req, res) => {
+app.post('/update_report', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -522,7 +522,7 @@ app.post('//update_report', (req, res) => {
 		});
 });
 
-app.post('//subscribe', (req, res) => {
+app.post('/subscribe', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -549,7 +549,7 @@ app.post('//subscribe', (req, res) => {
 	});
 });
 
-app.post('//notify', (req, res) => {
+app.post('/notify', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -576,7 +576,7 @@ app.post('//notify', (req, res) => {
 	});
 });
 
-app.post('//unsubscribe', (req, res) => {
+app.post('/unsubscribe', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -607,7 +607,7 @@ app.post('//unsubscribe', (req, res) => {
 	});
 });
 
-app.post('//star', (req, res) => {
+app.post('/star', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -634,7 +634,7 @@ app.post('//star', (req, res) => {
 	});
 });
 
-app.post('//unstar', (req, res) => {
+app.post('/unstar', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -662,7 +662,7 @@ app.post('//unstar', (req, res) => {
 	});
 });
 
-app.post('//requestVote', (req, res) => {
+app.post('/requestVote', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -710,7 +710,7 @@ app.post('//requestVote', (req, res) => {
 	});
 });
 
-app.post('//returnDefinition', (req, res) => {
+app.post('/returnDefinition', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn) {
 		res.json(notLoggedIn);
@@ -779,7 +779,7 @@ app.post('//returnDefinition', (req, res) => {
 	});
 });
 
-app.post('//getReportsForDef', (req, res) => {
+app.post('/getReportsForDef', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn){
 		res.json(notLoggedIn);
@@ -872,7 +872,7 @@ app.post('//getReportsForDef', (req, res) => {
 	});
 });
 
-app.post('//runTest', (req, res) => {
+app.post('/runTest', (req, res) => {
 if (!req.session.isLoggedIn) {
 	res.json(notLoggedIn);
 	return;
@@ -1039,7 +1039,7 @@ const processLogin = (session, body) => {
 		});
 };
 
-app.post('//login', function(req, res) {
+app.post('/login', function(req, res) {
 	log(req);
 	req.session.realUn = req.body.username;
 	req.session.superpower = false;
@@ -1059,13 +1059,13 @@ app.post('//login', function(req, res) {
 		}));
 });
 
-app.get('//logout', (req, res) => {
+app.get('/logout', (req, res) => {
 	log(req);
 	req.session.isLoggedIn = false;
 	res.redirect(process.env.API_URL);
 });
 
-app.get('//loggedIn', (req, res) => {
+app.get('/loggedIn', (req, res) => {
 	log(req);
 	if (req.session.isLoggedIn) {
 		console.log(req.session.un + ' is logged in');
@@ -1087,7 +1087,7 @@ app.get('//loggedIn', (req, res) => {
 	}
 });
 
-app.post('//superpower', function(req, res) {
+app.post('/superpower', function(req, res) {
 	log(req);
 	if(req.session.isLoggedIn && req.session.superpower) {
 		console.log('superpower switching to: ' + req.body.username);
@@ -1119,10 +1119,10 @@ app.get('*', (req, res) => {
 	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 });
-app.get('/*/*', (req, res) => {
-	log(req);
-	res.sendFile(path.join(__dirname + '/dist/index.html'));
-});
+// app.get('/*/*', (req, res) => {
+// 	log(req);
+// 	res.sendFile(path.join(__dirname + '/dist/index.html'));
+// });
 
 
 // Run app
