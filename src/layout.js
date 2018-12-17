@@ -192,45 +192,45 @@ class Layout extends React.Component {
 						</div>
 						<Divider />
 						<List>
-							<Link to={process.env.API_URL + "/"}>
+							<Link to={process.env.API_URL}>
 								<ListItem button key="Reports"><ListItemIcon><TableChart /></ListItemIcon><ListItemText primary="Reports" /></ListItem>
 							</Link>
-							<Link to={process.env.API_URL + "/starred"}>
+							<Link to={process.env.API_URL + "starred"}>
 								<ListItem button key="Starred"><ListItemIcon><StarIcon /></ListItemIcon><ListItemText primary="Starred" /></ListItem>
 							</Link>
-							<Link to={process.env.API_URL + "/subscribed"}>
+							<Link to={process.env.API_URL + "subscribed"}>
 								<ListItem button key="Subscribed"><ListItemIcon><Notifications /></ListItemIcon><ListItemText primary="Subscribed" /></ListItem>
 							</Link>
 							<Divider />
               { /*
-							<Link to={process.env.API_URL + "/adhoc"}>
+							<Link to={process.env.API_URL + "adhoc"}>
 								<ListItem button key="Ad-Hoc"><ListItemIcon><LooksOne /></ListItemIcon><ListItemText primary="Ad-Hoc" /></ListItem>
 							</Link>
               */ }
-							<Link to={process.env.API_URL + "/schedules"}>
+							<Link to={process.env.API_URL + "schedules"}>
 								<ListItem button key="Schedules"><ListItemIcon><AccessTime /></ListItemIcon><ListItemText primary="Schedules" /></ListItem>
 							</Link>
 						  <Divider />
-							<Link to={process.env.API_URL + "/requests"}>
+							<Link to={process.env.API_URL + "requests"}>
 								<ListItem button key="Feature Request"><ListItemIcon><HowToVote /></ListItemIcon><ListItemText primary="Feature Request" /></ListItem>
 							</Link>
             { this.context.loginState.superpower &&
-							<Link to={process.env.API_URL + "/superpower"}>
+							<Link to={process.env.API_URL + "superpower"}>
 								<ListItem button key="Superpower"><ListItemIcon><Fingerprint /></ListItemIcon><ListItemText primary="Superpower" /></ListItem>
 							</Link>
             }
             { /*
-							<Link to={process.env.API_URL + "/button"}>
+							<Link to={process.env.API_URL + "button"}>
 								<ListItem button key="Data Sources"><ListItemIcon><Transform /></ListItemIcon><ListItemText primary="Data Sources" /></ListItem>
 							</Link>
             */ }
             { /*
-							<Link to={process.env.API_URL + "/button"}>
+							<Link to={process.env.API_URL + "button"}>
 								<ListItem button key="Data Sources 2"><ListItemIcon><MergeType /></ListItemIcon><ListItemText primary="Data Sources 2" /></ListItem>
 							</Link>
             */ }
             { this.context.loginState.analyst &&
-							<Link to={process.env.API_URL + "/analytics"}>
+							<Link to={process.env.API_URL + "analytics"}>
 								<ListItem button key="Site Analytics"><ListItemIcon><InsertChart /></ListItemIcon><ListItemText primary="Site Analytics" /></ListItem>
 							</Link>
             }
@@ -242,37 +242,37 @@ class Layout extends React.Component {
               exact path={process.env.API_URL}
               render={ () => <Definitions filter="none" /> } />
 						<Route
-              path={process.env.API_URL + "/starred"}
+              path={process.env.API_URL + "starred"}
               render={ () => <Definitions filter="starred" /> } />
 						<Route
-              path={process.env.API_URL + "/subscribed"}
+              path={process.env.API_URL + "subscribed"}
               render={ () => <Definitions filter="subscribed" /> } />
 						<Route
-              path={process.env.API_URL + "/definition/:definition_id"}
+              path={process.env.API_URL + "definition/:definition_id"}
               component={Definitions} />
 						<Route
-              path={process.env.API_URL + "/schedules"}
+              path={process.env.API_URL + "schedules"}
               render={ () => <Schedules filter="subscribed" /> } />
 						<Route
-              path={process.env.API_URL + "/requests"}
+              path={process.env.API_URL + "requests"}
               component={Requests} />
 						<Route
-              path={process.env.API_URL + "/createNewReport"}
+              path={process.env.API_URL + "createNewReport"}
               component={EditReport} />
 						<Route
-              path={process.env.API_URL + "/editReport/:report_id"}
+              path={process.env.API_URL + "editReport/:report_id"}
               component={EditReport} />
 						<Route
-              path={process.env.API_URL + "/download/:report_id"}
+              path={process.env.API_URL + "download/:report_id"}
               component={Download} />
 						<Route
-              path={process.env.API_URL + "/notPermitted"}
+              path={process.env.API_URL + "notPermitted"}
               component={NotPermitted} />
 						<Route
-              path={process.env.API_URL + "/superpower"}
+              path={process.env.API_URL + "superpower"}
               component={Superpower} />
 						<Route
-              path={process.env.API_URL + "/analytics"}
+              path={process.env.API_URL + "analytics"}
               component={Analytics} />
 					</main>
 				</div>
