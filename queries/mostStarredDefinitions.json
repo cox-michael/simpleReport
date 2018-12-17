@@ -1,0 +1,41 @@
+[
+    {
+        "$project": {
+            "starred": 1,
+            "_id": 0
+        }
+    }, {
+        "$unwind": {
+            "path": "$starred"
+        }
+    }, {
+        "$group": {
+            "_id": "$starred",
+            "starred": {
+                "$sum": 1
+            }
+        }
+    }, {
+        "$lookup": {
+            "from": "simpleReport",
+            "localField": "_id",
+            "foreignField": "_id",
+            "as": "definition"
+        }
+    }, {
+        "$project": {
+            "starred": 1,
+            "name": {
+                "$arrayElemAt": [
+                    "$definition.name", 0
+                ]
+            }
+        }
+    }, {
+        "$sort": {
+            "starred": -1
+        }
+    }, {
+        "$limit": 5
+    }
+]

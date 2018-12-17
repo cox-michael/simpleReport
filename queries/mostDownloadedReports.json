@@ -1,0 +1,46 @@
+[
+  {
+    "$project": {
+      "filename": 1,
+      "downloads": 1
+    }
+  }, {
+    "$match": {
+      "$expr": {
+        "$gt": [
+          {
+            "$size": "$downloads"
+          }, 0
+        ]
+      }
+    }
+  }, {
+    "$unwind": {
+      "path": "$downloads"
+    }
+  }, {
+    "$group": {
+      "_id": {
+        "_id": "$_id",
+        "filename": "$filename"
+      },
+      "downloads": {
+        "$addToSet": "$downloads.user_id"
+      }
+    }
+  }, {
+    "$addFields": {
+      "_id": "$_id._id",
+      "filename": "$_id.filename",
+      "downloads": {
+        "$size": "$downloads"
+      }
+    }
+  }, {
+    "$sort": {
+      "downloads": -1
+    }
+  }, {
+    "$limit": 5
+  }
+]
