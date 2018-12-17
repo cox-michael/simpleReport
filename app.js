@@ -284,7 +284,7 @@ app.get('//downloadReport/:id', (req, res) => {
 		    }
 		  }, {
 		    $lookup: {
-		      from: process.env.DEF_TABLE,
+		      from: 'definitions',
 		      localField: 'definition_id',
 		      foreignField: '_id',
 		      as: 'definition'
@@ -416,7 +416,7 @@ app.post('//create_new_report', (req, res) => {
 	}
 
 	dbo = db.db(process.env.DB_NAME);
-	dbo.collection(process.env.DEF_TABLE).insertOne(req.body.report, function(err, result) {
+	dbo.collection('definitions').insertOne(req.body.report, function(err, result) {
 		assert.equal(err, null);
 		assert.equal(1, result.result.n);
 		assert.equal(1, result.ops.length);
@@ -477,7 +477,7 @@ app.post('//update_report', (req, res) => {
 	const id = req.body.report._id;
 	delete req.body.report._id;
 	dbo = db.db(process.env.DB_NAME);
-	dbo.collection(process.env.DEF_TABLE).findOneAndUpdate(
+	dbo.collection('definitions').findOneAndUpdate(
 		{ _id: mongodb.ObjectId(id) },
 		{ $set: req.body.report },
 		{ upsert: 1 },
@@ -696,7 +696,7 @@ app.post('//returnDefinition', (req, res) => {
 
 	// console.log('getReport');
 	dbo = db.db(process.env.DB_NAME);
-	dbo.collection(process.env.DEF_TABLE).aggregate([
+	dbo.collection('definitions').aggregate([
     {
         '$match': { '$expr': {
 					'$eq': [ '$_id', mongodb.ObjectId(req.body.reportId) ]
