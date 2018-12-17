@@ -907,7 +907,7 @@ if (!req.session.isLoggedIn) {
 			   return console.error(err);
 			}
 
-			const downloadUrl = (process.env.API_URL + "/downloadTest/" +
+			const downloadUrl = (process.env.API_URL + "downloadTest/" +
 			 										 req.session.realUserid + '.xlsx');
 			res.json({
 				isLoggedIn: req.session.isLoggedIn,

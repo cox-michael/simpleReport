@@ -119,7 +119,7 @@ class Definitions extends React.Component {
 					{ this.context.loginState.analyst &&
 					<div className={classes.buttons}>
 						<Link
-						 	to={process.env.API_URL + "/createNewReport"}
+						 	to={process.env.API_URL + "createNewReport"}
 							style={{textDecoration: 'none'}}>
 							<Button
 							 	variant="contained"
@@ -171,7 +171,7 @@ class Definitions extends React.Component {
 								}&nbsp;
 								any reports yet.
 								Go back to&nbsp;
-								<Link to={process.env.API_URL + "/"}>
+								<Link to={process.env.API_URL}>
 									all reports
 								</Link> to add some.</Typography>
 						</Paper>
