@@ -106,6 +106,23 @@ const notPermitted = {
 	// reports: result
 }
 
+const checkPermissions = (req, level) => {
+	// level 1 => user must be logged in
+	// level 2 => user must be an analyst
+	// level 3 => user must have superpowers
+	return new Promise((resolve, reject) => {
+		if (level >= 1 && !req.session.isLoggedIn) {
+			reject(401, notLoggedIn);
+		} else if (level >= 2 && !req.session.analyst) {
+			reject(403, notPermitted);
+		} else if (level >= 3 && !req.session.superpower) {
+			reject(403, notPermitted);
+		} else {
+			resolve(true);
+		}
+	});
+}
+
 const loadQuery = (req, path) => {
 	return new Promise((resolve, reject) => {
 		fs.readFile(path, (err, contents) => {
@@ -148,6 +165,15 @@ const loadQuery = (req, path) => {
 			}
 	  })
 	});
+}
+
+const apiResponse = (data, success=true, messages=[]) => {
+	return {
+		isLoggedIn: true,
+		success: success,
+		messages: messages,
+		data: data
+	}
 }
 
 const apiHandler = (req) => {
