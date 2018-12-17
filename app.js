@@ -106,6 +106,90 @@ const notPermitted = {
 	// reports: result
 }
 
+const loadQuery = (req, path) => {
+	return new Promise((resolve, reject) => {
+		fs.readFile(path, (err, contents) => {
+	    if (err) {
+	      reject(err);
+	    } else {
+				var query = JSON.parse(contents)
+
+				function eachRecursive(obj) {
+			    for (var item in obj) {
+		        if (typeof(obj[item]) == "object" && obj[item] !== null) {
+	            eachRecursive(obj[item]);
+		        } else if (obj[item] == '_userid_') {
+								obj[item] = mongodb.ObjectId(req.session.userid)
+						}
+			    }
+				}
+				eachRecursive(query);
+
+				if ((req.params.handle == 'getReports' && !req.session.analyst) ||
+						(req.params.handle == 'getSchedules' && !req.session.analyst)) {
+					query.unshift({
+						$match: {
+							$expr: {
+								$or: [
+									{ $eq: [ "$permissions.company." + req.session.permissionLevel,
+													 true ] },
+									{ $and: [
+											{ $eq: [ "$dept", req.session.ldap.department ] },
+											{ $eq: [ "$permissions.dept." + req.session.permissionLevel,
+															 true ] }
+									] }
+								]
+							}
+						}
+					})
+				}
+
+	      resolve(query);
+			}
+	  })
+	});
+}
+
+const apiHandler = (req) => {
+	return new Promise((resolve, reject) => {
+		const handle = req.params.handle
+
+		const [collection, permissionLevel] = ((handle) => { switch (handle) {
+			case 'mostDownloadedDefinitions':
+			case 'mostDownloadedReports':
+			case 'reportsGeneratedByDate':
+			case 'mostActiveUsersByDownloads': 	return ['reports', 2];
+			case 'getRequests':									return ['requests', 1];
+			case 'getSchedules':
+			case 'getReports':									return ['definitions', 1];
+			case 'mostSubscribedToDefinitions':	return ['users', 2];
+			case 'mostStarredDefinitions':			return ['users', 2];
+			default:
+				console.log(handle);
+				console.log('defaulting');
+				reject(500, {});
+				return;
+		}})(handle);
+
+		checkPermissions(req, permissionLevel)
+		.then(() => {
+			loadQuery(req, path.join(__dirname + '/queries/' + handle + '.json'))
+			.then(query => {
+				dbo = db.db(process.env.DB_NAME);
+				dbo.collection(collection).aggregate(query).toArray((err, docs) => {
+					resolve(apiResponse(docs));
+				});
+			})
+			.catch(err => reject(500, {
+				isLoggedIn: true,
+				success: false,
+				messages: ['Failed to load query'],
+			}))
+		})
+		.catch((code, json) => reject(code, json))
+	});
+}
+
 //##############################################################################
 // SERVING #####################################################################
 //##############################################################################
@@ -120,6 +204,11 @@ app.get('/', (req, res) => {
 app.get('//', (req, res) => {
 	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
+});
+
+app.get('//dist/main.js', (req, res) => {
+	log(req);
+	res.sendFile(path.join(__dirname + '/dist/main.js'));
 });
 
 app.get('//destroy', (req, res) => {
@@ -142,468 +231,42 @@ app.get('//removeSuperpower', (req, res) => {
 	res.end('not a hero anymore');
 });
 
-app.get('//dist/main.js', (req, res) => {
+app.get('//sessionData', (req, res) => {
 	log(req);
-	res.sendFile(path.join(__dirname + '/dist/main.js'));
+	res.json(req.session);
 });
 
-app.get('//getReports', (req, res) => {
+app.get('//expires', function(req, res, next) {
 	log(req);
-	if (!req.session.isLoggedIn) {
-		res.status(401);
-		res.json(notLoggedIn);
-		return;
-	} else if (!req.session.analyst) {
-		res.status(403);
-		res.json(notPermitted);
-		return;
-	}
-
-	dbo = db.db(process.env.DB_NAME);
-	var query = [
-		{
-	    $lookup: {
-	      from: 'users',
-	      let: { report_id: "$_id" },
-	      pipeline: [{ $match: { $expr: { $and: [
-	                { $eq: [ "$_id", mongodb.ObjectId(req.session.userid) ] },
-									{ $in: [ "$$report_id", "$subscriptions" ] }
-	      ]}}}],
-	      as: 'subscribed'
-	    }
-	  },
-		{
-	    $lookup: {
-	      from: 'users',
-	      let: { report_id: "$_id" },
-	      pipeline: [{ $match: { $expr: { $and: [
-	                { $eq: [ "$_id", mongodb.ObjectId(req.session.userid) ] },
-									{ $in: [ "$$report_id", "$notifications" ] }
-	      ]}}}],
-	      as: 'notify'
-	    }
-	  },
-		{
-	    $lookup: {
-	      from: 'users',
-	      let: { report_id: "$_id" },
-	      pipeline: [{ $match: { $expr: { $and: [
-	                { $eq: [ "$_id", mongodb.ObjectId(req.session.userid) ] },
-									{ $in: [ "$$report_id", "$starred" ] }
-	      ]}}}],
-	      as: 'starred'
-	    }
-	  },
-		{
-			$lookup: {
-			  from: 'reports',
-			  localField: '_id',
-			  foreignField: 'definition_id',
-			  as: 'lastRun'
-			}
-		},
-		{ $addFields: {
-			subscribed: { $size: "$subscribed" },
-			notify: { $size: "$notify" },
-			starred: { $size: "$starred" },
-			lastRun: { $toDate: { $max: "$lastRun._id" } }
-		} },
-		{ $sort: {
-      dept: 1,
-      name: 1
-    } }
-	]
-
-	if (!req.session.analyst) {
-		query.unshift({
-			$match: {
-				$expr: {
-					$or: [
-						{ $eq: [ "$permissions.company." + req.session.permissionLevel,
-						 				 true ] },
-						{ $and: [
-								{ $eq: [ "$dept", req.session.ldap.department ] },
-								{ $eq: [ "$permissions.dept." + req.session.permissionLevel,
-								 				 true ] }
-						] }
-					]
-				}
-			}
-		})
-	}
-
-	dbo.collection(process.env.DEF_TABLE).aggregate(query).toArray(function(err, docs) {
-		res.json({
-			isLoggedIn: req.session.isLoggedIn,
-			success: true,
-			messages: [],
-			reports: docs
-		})
-	});
-});
-
-app.get('//getRequests', (req, res) => {
-	log(req);
-	if (!req.session.isLoggedIn) {
-		res.status(401);
-		res.json(notLoggedIn)
-		return;
-	}
-
-	const query = [
-	{
-    $match: {
-      completed: false
-    }
-  }, {
-    $addFields: {
-      votes: {
-        $subtract: [
-          {
-            $size: "$upvotes"
-          }, {
-            $size: "$downvotes"
-          }
-        ]
-      }
-    }
-  }, {
-    $addFields: {
-      upvoted: {
-        $in: [
-          mongodb.ObjectId('5bf46573f5c92f6b5383b5bd'), "$upvotes"
-        ]
-      },
-      downvoted: {
-        $in: [
-          mongodb.ObjectId(req.session.userid), "$downvotes"
-        ]
-      }
-    }
-  }, {
-    $project: {
-      upvotes: 0,
-      downvotes: 0
-    }
-  }, {
-    $lookup: {
-      from: 'users',
-      localField: 'author',
-      foreignField: '_id',
-      as: 'author'
-    }
-  }, {
-    $addFields: {
-      author: {
-        $arrayElemAt: [
-          "$author", 0
-        ]
-      }
-    }
-  }, {
-    $addFields: {
-      author: "$author.ldap.displayName"
-    }
-  }, {
-    $sort: {
-      votes: -1
-    }
+  if (req.session.views) {
+    req.session.views++
+    res.setHeader('Content-Type', 'text/html')
+    res.write('<p>views: ' + req.session.views + '</p>')
+    res.write('<p>expires in: ' + (req.session.cookie.maxAge / 1000) + 's</p>')
+    res.end()
+  } else {
+    req.session.views = 1
+    res.end('welcome to the session demo. refresh!')
   }
-]
+})
 
-	dbo = db.db(process.env.DB_NAME);
-	dbo.collection("requests").aggregate(query).toArray(function(err, docs) {
-		res.json({
-			isLoggedIn: req.session.isLoggedIn,
-			success: true,
-			messages: [],
-			requests: docs,
-		})
-	});
-});
-
-app.get('//getSchedules', (req, res) => {
+app.all('//api/:handle', (req, res) => {
 	log(req);
-	if (!req.session.isLoggedIn) {
-		res.status(401);
-		res.json(notLoggedIn)
-		return;
-	}
-	dbo = db.db(process.env.DB_NAME);
-	var query = [
-	  {
-	    $project: {
-	      schedules: 1,
-	      name: 1
-	    }
-	  }, {
-	    $unwind: {
-	      path: "$schedules"
-	    }
-	  }, {
-	    $lookup: {
-	      from: 'reports',
-	      localField: '_id',
-	      foreignField: 'definition_id',
-	      as: 'lastRun'
-	    }
-	  }, {
-	    $addFields: {
-	      lastRun: {
-	        $toDate: {
-	          $max: "$lastRun._id"
-	        }
-	      }
-	    }
-	  }
-	]
-
-	if (!req.session.analyst) {
-		query.unshift({
-			$match: {
-				$expr: {
-					$or: [
-						{ $eq: [ "$permissions.company." + req.session.permissionLevel,
-						 				 true ] },
-						{ $and: [
-								{ $eq: [ "$dept", req.session.ldap.department ] },
-								{ $eq: [ "$permissions.dept." + req.session.permissionLevel,
-								 				 true ] }
-						] }
-					]
-				}
-			}
-		})
-	}
-
-	dbo.collection(process.env.DEF_TABLE).aggregate(query).toArray(function(err, docs) {
-		res.json({
-			isLoggedIn: req.session.isLoggedIn,
-			success: true,
-			messages: [],
-			schedules: docs
-		})
-	});
-});
-
-app.get('//mostDownloadedReports', (req, res) => {
-	log(req);
-	if (!req.session.isLoggedIn) {
-		res.status(401);
-		res.json(notLoggedIn);
-		return;
-	} else if (!req.session.analyst) {
-		res.status(403);
-		res.json(notPermitted);
-		return;
-	}
-
-	dbo = db.db(process.env.DB_NAME);
-	var query = [
-	  {
-	    $project: {
-	      filename: 1,
-	      downloads: 1
-	    }
-	  }, {
-	    $match: {
-	      $expr: {
-	        $gt: [
-	          {
-	            $size: "$downloads"
-	          }, 0
-	        ]
-	      }
-	    }
-	  }, {
-	    $unwind: {
-	      path: "$downloads"
-	    }
-	  }, {
-	    $group: {
-	      _id: {
-	        _id: "$_id",
-	        filename: "$filename"
-	      },
-	      "downloads": {
-	        $addToSet: "$downloads.user_id"
-	      }
-	    }
-	  }, {
-	    $addFields: {
-	      _id: "$_id._id",
-	      filename: "$_id.filename",
-	      downloads: {
-	        $size: "$downloads"
-	      }
-	    }
-	  }, {
-	    $sort: {
-	      downloads: -1
-	    }
-	  }, {
-	    $limit: 5
-	  }
-	]
-
-	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
-		res.json({
-			isLoggedIn: req.session.isLoggedIn,
-			success: true,
-			messages: [],
-			reports: docs
-		})
-	});
-});
-
-app.get('//mostActiveUsersByDownloads', (req, res) => {
-	log(req);
-	if (!req.session.isLoggedIn) {
-		res.status(401);
-		res.json(notLoggedIn);
-		return;
-	} else if (!req.session.analyst) {
-		res.status(403);
-		res.json(notPermitted);
-		return;
-	}
-
-	dbo = db.db(process.env.DB_NAME);
-	var query = [
-  {
-    $project: {
-      user_id: "$downloads.user_id"
-    }
-  }, {
-    $unwind: {
-      path: "$user_id"
-    }
-  }, {
-    $group: {
-      _id: "$user_id",
-      downloads: {
-        $addToSet: "$_id"
-      }
-    }
-  }, {
-    $addFields: {
-      downloads: {
-        $size: "$downloads"
-      }
-    }
-  }, {
-    $lookup: {
-      from: 'users',
-      localField: '_id',
-      foreignField: '_id',
-      as: 'displayName'
-    }
-  }, {
-    $addFields: {
-      displayName: {
-        $arrayElemAt: [
-          "$displayName.ldap.displayName", 0
-        ]
-      }
-    }
-  }, {
-    $sort: {
-      downloads: -1
-    }
-  }, {
-    $limit: 5
-  }
-]
-
-	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
-		res.json({
-			isLoggedIn: req.session.isLoggedIn,
-			success: true,
-			messages: [],
-			users: docs
-		})
-	});
-});
-
-app.get('//reportsGeneratedByDate', (req, res) => {
-	log(req);
-	if (!req.session.isLoggedIn) {
-		res.status(401);
-		res.json(notLoggedIn);
-		return;
-	} else if (!req.session.analyst) {
-		res.status(403);
-		res.json(notPermitted);
-		return;
-	}
-
-	dbo = db.db(process.env.DB_NAME);
-	var query = [
-	  {
-	    $project: {
-	      created: {
-	        $dateFromString: {
-	          dateString: {
-	            $dateToString: {
-	              format: "%Y-%m-%d",
-	              date: {
-	                $toDate: "$_id"
-	              },
-	              timezone: "America/New_York"
-	            }
-	          },
-	          timezone: "America/New_York"
-	        }
-	      }
-	    }
-	  }, {
-	    $group: {
-	      _id: {
-	        created: "$created"
-	      },
-	      generated: {
-	        $push: "$_id"
-	      }
-	    }
-	  }, {
-	    $project: {
-	      created: "$_id.created",
-	      generated: {
-	        $size: "$generated"
-	      },
-	      _id: 0
-	    }
-	  }, {
-	    $sort: {
-	      created: -1
-	    }
-	  }
-	]
-
-	dbo.collection("reports").aggregate(query).toArray(function(err, docs) {
-		res.json({
-			isLoggedIn: req.session.isLoggedIn,
-			success: true,
-			messages: [],
-			data: docs
-		})
-	});
-});
+	apiHandler(req)
+	.then(response => res.json(response))
+	.catch((code, json) => {
+		res.status(code);
+		res.json(json);
+	})
+})
 
 app.get('//downloadTest/:filename', (req, res) => {
 	log(req);
-	if (!req.session.isLoggedIn) {
-		res.status(401);
-		res.json(notLoggedIn);
-		return;
-	} else if (!req.session.analyst) {
-		res.status(403);
-		res.json(notPermitted);
-		return;
-	}
-
-	const filename = path.join(__dirname + '/tmp/' + req.params.filename);
-	res.download(filename);
+	checkPermissions(req, 2)
+	.then(() => {
+		const filename = path.join(__dirname + '/tmp/' + req.params.filename);
+		res.download(filename);
+	})
 });
 
 app.get('//downloadReport/:id', (req, res) => {
@@ -732,24 +395,9 @@ app.get('//downloadReport/:id', (req, res) => {
 	}
 });
 
-app.get('//sessionData', (req, res) => {
-	log(req);
-	res.json(req.session);
-});
 
-app.get('//expires', function(req, res, next) {
-	log(req);
-  if (req.session.views) {
-    req.session.views++
-    res.setHeader('Content-Type', 'text/html')
-    res.write('<p>views: ' + req.session.views + '</p>')
-    res.write('<p>expires in: ' + (req.session.cookie.maxAge / 1000) + 's</p>')
-    res.end()
-  } else {
-    req.session.views = 1
-    res.end('welcome to the session demo. refresh!')
-  }
-})
+
+
 
 
 
