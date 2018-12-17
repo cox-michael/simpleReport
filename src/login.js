@@ -80,7 +80,7 @@ class SignIn extends React.Component {
 			pw: ''
 		});
 
-		fetch(process.env.API_URL + '/login', {
+		fetch(process.env.API_URL + 'login', {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {

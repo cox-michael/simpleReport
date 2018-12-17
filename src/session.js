@@ -110,7 +110,7 @@ class SessionProvider extends React.Component {
 		}
 		});
 
-		fetch(process.env.API_URL + '/getReportsForDef', {
+		fetch(process.env.API_URL + 'getReportsForDef', {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {
@@ -146,8 +146,8 @@ class SessionProvider extends React.Component {
 
 	render() {
 		// if (this.state.report.schedule){
-		// 	console.log(process.env.API_URL + '/schedule/' + this.state.report.report._id);
-		// 	return <Redirect push to={process.env.API_URL + '/schedule/' + this.state.report.report._id} />;
+		// 	console.log(process.env.API_URL + 'schedule/' + this.state.report.report._id);
+		// 	return <Redirect push to={process.env.API_URL + 'schedule/' + this.state.report.report._id} />;
 		// }
 
 		return (

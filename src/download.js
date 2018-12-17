@@ -11,7 +11,7 @@ class Download extends React.Component {
 	}
 
 	componentDidMount() {
-		window.location.href = process.env.API_URL + '/downloadReport/' + this.props.match.params.report_id;
+		window.location.href = process.env.API_URL + 'downloadReport/' + this.props.match.params.report_id;
 	}
 
 	render() {

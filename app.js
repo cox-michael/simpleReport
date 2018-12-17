@@ -273,7 +273,7 @@ app.get('//downloadReport/:id', (req, res) => {
 	log(req);
 	if (!req.session.isLoggedIn) {
 		console.log('redirecting...');
-		res.redirect(process.env.API_URL + '/download/' + req.params.id);
+		res.redirect(process.env.API_URL + 'download/' + req.params.id);
 		return;
 	} else if (!req.session.analyst) {
 		dbo = db.db(process.env.DB_NAME);
@@ -322,7 +322,7 @@ app.get('//downloadReport/:id', (req, res) => {
 			// res.write('\nthat means: ');
 			if (!docs.length) {
 				// res.write('\nnot permitted');
-				res.redirect(process.env.API_URL + '/notPermitted');
+				res.redirect(process.env.API_URL + 'notPermitted');
 				return;
 			} else { // TODO clean up these two else statements. They do the same thing
 				// console.log('\n\ndownloading report');
@@ -1037,7 +1037,7 @@ app.post('//login', function(req, res) {
 app.get('//logout', (req, res) => {
 	log(req);
 	req.session.isLoggedIn = false;
-	res.redirect(process.env.API_URL + '/');
+	res.redirect(process.env.API_URL);
 });
 
 app.get('//loggedIn', (req, res) => {
