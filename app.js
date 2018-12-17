@@ -948,8 +948,6 @@ const processLogin = (session, body) => {
 				// who I want to have superpowers
 				// if (session.un == process.env.ADMIN) {
 					session.superpower = true;
-				} else {
-					session.superpower = false;
 				}
 				if (session.ldap.dn.toLowerCase().includes(process.env.ANALYST_DEPT)) {
 					session.analyst = true;
@@ -1018,6 +1016,7 @@ const processLogin = (session, body) => {
 app.post('//login', function(req, res) {
 	log(req);
 	req.session.realUn = req.body.username;
+	req.session.superpower = false;
 
 	processLogin(req.session, req.body)
 		.then(session => {
