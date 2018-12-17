@@ -137,40 +137,37 @@ class SchedulesTable extends React.Component {
 				</TableHead>
 				<TableBody>
 					{this.props.schedules.map((row, idx) => {
+						if (row.schedules.freq == '') return
 						return (
-							<SessionContext.Consumer key={row._id + idx}>
-							{session => (
-								<TableRow key={row._id + idx} hover
-								 	onMouseEnter={(e) => this.handleMouseEnter(row._id, e)}
-									onMouseLeave={this.handleMouseLeave}
-								>
-									<TableCell className={classes.noWrap} component="th" scope="row">
-										<Button onClick={e => session.openReport(row)}>
-											{row.name}
-										</Button>
-									</TableCell>
-									<TableCell>
-										{row.schedules.freq[0].toUpperCase() + row.schedules.freq.substring(1, row.schedules.freq.length)}
+							<TableRow key={row._id + idx} hover
+							 	onMouseEnter={(e) => this.handleMouseEnter(row._id, e)}
+								onMouseLeave={this.handleMouseLeave}
+							>
+								<TableCell className={classes.noWrap} component="th" scope="row">
+									<Button onClick={e => this.context.openReport(row)}>
+										{row.name}
+									</Button>
+								</TableCell>
+								<TableCell>
+									{row.schedules.freq[0].toUpperCase() + row.schedules.freq.substring(1, row.schedules.freq.length)}
 
-										{row.schedules.freq == 'weekly' && " on " }
-										{properList(row.schedules.weekday)}
+									{row.schedules.freq == 'weekly' && " on " }
+									{properList(row.schedules.weekday)}
 
-										{row.schedules.freq == 'yearly' && " in " }
-										{properList(row.schedules.month)}
+									{row.schedules.freq == 'yearly' && " in " }
+									{properList(row.schedules.month)}
 
-										{(row.schedules.freq == 'monthly' ||
-										 	row.schedules.freq == 'yearly') && " on the " }
-										{properList(getOridnal(row.schedules.day))}
+									{(row.schedules.freq == 'monthly' ||
+									 	row.schedules.freq == 'yearly') && " on the " }
+									{properList(getOridnal(row.schedules.day))}
 
-										{" in the "}
-										{properList(row.schedules.time)}
-									</TableCell>
-									<TableCell className={classes.noWrap}>
-										{row.lastRun ? cleanDate(row.lastRun) : 'Has not run'}
-									</TableCell>
-								</TableRow>
-							)}
-							</SessionContext.Consumer>
+									{" in the "}
+									{properList(row.schedules.time)}
+								</TableCell>
+								<TableCell className={classes.noWrap}>
+									{row.lastRun ? cleanDate(row.lastRun) : 'Has not run'}
+								</TableCell>
+							</TableRow>
 						);
 					})}
 				</TableBody>
