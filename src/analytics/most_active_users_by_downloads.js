@@ -13,6 +13,9 @@ const styles = theme => ({
   table: {
     minWidth: 200,
   },
+  center: {
+    textAlign: 'center',
+  },
 });
 
 class MostActiveUsersByDownloads extends React.Component {
@@ -34,7 +37,7 @@ class MostActiveUsersByDownloads extends React.Component {
     this.setState({
       loading: true,
     });
-    fetch(process.env.API_URL + '/mostActiveUsersByDownloads', {
+    fetch(process.env.API_URL + 'api/mostActiveUsersByDownloads', {
       credentials: "same-origin"
     })
     .then(response => response.json())
@@ -43,11 +46,11 @@ class MostActiveUsersByDownloads extends React.Component {
         this.context.handleLoginStatusChange(false);
         return;
       } else if (data.messages[0] == 'You do not have permissions to do this') {
-        window.location.href = process.env.API_URL + '/notPermitted';
+        window.location.href = process.env.API_URL + 'notPermitted';
       } else {
         this.setState({
           loading: false,
-          users: data.users,
+          users: data.data,
         })
       }
     });
@@ -63,8 +66,11 @@ class MostActiveUsersByDownloads extends React.Component {
 
     return (
       <div>
-        <Typography variant="h5">
+        <Typography variant="h5" className={classes.center}>
           Most Active Users by Downloads
+        </Typography>
+        <Typography className={classes.center}>
+          (Top 5)
         </Typography>
         <Table className={classes.table}>
           <TableHead>

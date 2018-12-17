@@ -13,6 +13,9 @@ const styles = theme => ({
   table: {
     minWidth: 200,
   },
+  center: {
+    textAlign: 'center',
+  },
 });
 
 class MostDownloadedReports extends React.Component {
@@ -34,20 +37,20 @@ class MostDownloadedReports extends React.Component {
     this.setState({
       loading: true,
     });
-    fetch(process.env.API_URL + '/mostDownloadedReports', {
+    fetch(process.env.API_URL + 'api/mostDownloadedReports', {
       credentials: "same-origin"
     })
     .then(response => response.json())
-    .then(data => {
-      if (!data.isLoggedIn) {
+    .then(response => {
+      if (!response.isLoggedIn) {
         this.context.handleLoginStatusChange(false);
         return;
-      } else if (data.messages[0] == 'You do not have permissions to do this') {
-        window.location.href = process.env.API_URL + '/notPermitted';
+      } else if (response.messages[0] == 'You do not have permissions to do this') {
+        window.location.href = process.env.API_URL + 'notPermitted';
       } else {
         this.setState({
           loading: false,
-          reports: data.reports,
+          reports: response.data,
         })
       }
     });
@@ -63,8 +66,11 @@ class MostDownloadedReports extends React.Component {
 
     return (
       <div>
-        <Typography variant="h5">
-          Most Downloaded Reports
+        <Typography variant="h5" className={classes.center}>
+          Most Downloaded Files
+        </Typography>
+        <Typography variant="subtitle1" className={classes.center}>
+          (Top 5)
         </Typography>
         <Table className={classes.table}>
           <TableHead>
