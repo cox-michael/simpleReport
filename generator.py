@@ -63,10 +63,7 @@ print('Time: ' + time)
 client = pymongo.MongoClient("mongodb://" + os.getenv('DB_USER') +
                              ":" + os.getenv('DB_PASSWORD') +
                              "@" + mongodb_ip)
-if env == 'production':
-    db = client.simpleReport
-else:
-    db = client.test
+db = client[os.getenv('DB_NAME')]
 
 ########## Query Reports
 print('Querying reports to run')
@@ -279,8 +276,8 @@ for report in reports:
 
 ########## Send delivery emails
 
-#if time == 'Morning' or env != 'production':
-if time == 'Morning':
+if time == 'Morning' or env != 'production':
+# if time == 'Morning':
     print('Sending delivery emails')
 
     # Get users
