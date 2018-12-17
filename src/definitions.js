@@ -86,12 +86,14 @@ class Definitions extends React.Component {
 	componentDidMount() {
 		this.reload()
 		.then(() => {
-			if (typeof this.props.match.params.definition_id !== "undefined"){
-				if (!this.state.loading) {
-					var reports = this.state.data.reports;
-					var definition_id = this.props.match.params.definition_id;
-					var report = reports.filter(report => report._id == definition_id)[0];
-					this.context.openReport(report);
+			if (typeof this.props.match !== "undefined"){
+				if (typeof this.props.match.params.definition_id !== "undefined"){
+					if (!this.state.loading) {
+						var reports = this.state.data.reports;
+						var definition_id = this.props.match.params.definition_id;
+						var report = reports.filter(report => report._id == definition_id)[0];
+						this.context.openReport(report);
+					}
 				}
 			}
 		})
