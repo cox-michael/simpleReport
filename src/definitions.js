@@ -62,7 +62,7 @@ class Definitions extends React.Component {
 
 	reload = (keep='') => {
 		return new Promise((resolve, reject) => {
-			fetch(process.env.API_URL + '/getReports', {
+			fetch(process.env.API_URL + 'api/getReports', {
 				credentials: "same-origin"
 			})
 			.then(response => response.json())

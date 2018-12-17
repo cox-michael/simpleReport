@@ -126,7 +126,7 @@ class Layout extends React.Component {
 	};
 
 	handleLogout = () => {
-		fetch(process.env.API_URL + '/destroy', {
+		fetch(process.env.API_URL + 'destroy', {
 			method: 'GET',
 			credentials: "same-origin",
 			headers: {

@@ -135,7 +135,7 @@ class ViewSingleReport extends React.Component {
           </DialogContent>
           <DialogActions>
 						<Link
-						 	to={process.env.API_URL + '/editReport/' + report._id}
+						 	to={process.env.API_URL + 'editReport/' + report._id}
 							style={{textDecoration: 'none'}}>
 						{ this.props.analyst &&
 						<Button onClick={this.props.fn.closeReport} color="primary">
