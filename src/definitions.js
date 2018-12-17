@@ -72,6 +72,7 @@ class Definitions extends React.Component {
 					this.context.handleLoginStatusChange(false);
 					return;
 				}
+				data.reports = data.data;
 				this.setState({
 					data: data,
 					keep: keep,

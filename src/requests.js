@@ -125,13 +125,13 @@ class Requests extends React.Component {
       credentials: "same-origin"
     })
     .then(response => response.json())
-    .then(data => {
-      if (!data.isLoggedIn){
+    .then(response => {
+      if (!response.isLoggedIn){
         this.context.handleLoginStatusChange(false);
         return;
       }
       this.setState({
-        requests: data.requests,
+        requests: response.data,
         loading: false,
       })
     });
