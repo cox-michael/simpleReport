@@ -222,11 +222,6 @@ const apiHandler = (req) => {
 
 // GET #########################################################################
 
-// TODO: remove this after full production release to public
-app.get('//*', (req, res) => { // reroute from old domain
-	res.redirect('http://' + process.env.FULL_URL + req.originalUrl.substr(2));
-})
-
 app.get('/', (req, res) => {
 	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
@@ -1114,6 +1109,11 @@ app.post('/superpower', function(req, res) {
 
 // WRAP UP #####################################################################
 
+// TODO: remove this after full production release to public
+app.get('//*', (req, res) => { // reroute from old domain
+	res.redirect('http://' + process.env.FULL_URL + req.originalUrl.substr(2));
+})
+
 // This is for React-Router to work
 app.get('*', (req, res) => {
 	log(req);
@@ -1123,7 +1123,6 @@ app.get('*', (req, res) => {
 // 	log(req);
 // 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 // });
-
 
 // Run app
 app.listen(process.env.PORT, process.env.HOST, () => {
