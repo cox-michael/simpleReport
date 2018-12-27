@@ -23,7 +23,7 @@
         }
     }, {
         "$lookup": {
-            "from": "simpleReport",
+            "from": "definitions",
             "localField": "_id",
             "foreignField": "_id",
             "as": "definition"
