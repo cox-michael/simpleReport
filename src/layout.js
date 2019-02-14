@@ -18,7 +18,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import StarIcon from '@material-ui/icons/Star';
 import { TableChart, AccessTime, HowToVote, LooksOne, Notifications,
- 				 Fingerprint, Transform, MergeType,
+ 				 Fingerprint, Storage,
          InsertChart } from '@material-ui/icons';
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
 import Definitions from './definitions';
@@ -30,6 +30,7 @@ import EditReport from './edit_report';
 import Download from './download';
 import Requests from './requests';
 import Analytics from './analytics';
+import DataSources from './data_sources';
 import Button from '@material-ui/core/Button';
 import { MeetingRoom } from '@material-ui/icons';
 import { SessionContext } from "./session";
@@ -201,7 +202,6 @@ class Layout extends React.Component {
 							<Link to={process.env.API_URL + "subscribed"}>
 								<ListItem button key="Subscribed"><ListItemIcon><Notifications /></ListItemIcon><ListItemText primary="Subscribed" /></ListItem>
 							</Link>
-							<Divider />
               { /*
 							<Link to={process.env.API_URL + "adhoc"}>
 								<ListItem button key="Ad-Hoc"><ListItemIcon><LooksOne /></ListItemIcon><ListItemText primary="Ad-Hoc" /></ListItem>
@@ -210,30 +210,30 @@ class Layout extends React.Component {
 							<Link to={process.env.API_URL + "schedules"}>
 								<ListItem button key="Schedules"><ListItemIcon><AccessTime /></ListItemIcon><ListItemText primary="Schedules" /></ListItem>
 							</Link>
-						  <Divider />
 							<Link to={process.env.API_URL + "requests"}>
 								<ListItem button key="Feature Request"><ListItemIcon><HowToVote /></ListItemIcon><ListItemText primary="Feature Request" /></ListItem>
 							</Link>
-            { this.context.loginState.superpower &&
-							<Link to={process.env.API_URL + "superpower"}>
-								<ListItem button key="Superpower"><ListItemIcon><Fingerprint /></ListItemIcon><ListItemText primary="Superpower" /></ListItem>
-							</Link>
-            }
-            { /*
-							<Link to={process.env.API_URL + "button"}>
-								<ListItem button key="Data Sources"><ListItemIcon><Transform /></ListItemIcon><ListItemText primary="Data Sources" /></ListItem>
-							</Link>
-            */ }
-            { /*
-							<Link to={process.env.API_URL + "button"}>
-								<ListItem button key="Data Sources 2"><ListItemIcon><MergeType /></ListItemIcon><ListItemText primary="Data Sources 2" /></ListItem>
-							</Link>
-            */ }
-            { this.context.loginState.analyst &&
-							<Link to={process.env.API_URL + "analytics"}>
-								<ListItem button key="Site Analytics"><ListItemIcon><InsertChart /></ListItemIcon><ListItemText primary="Site Analytics" /></ListItem>
-							</Link>
-            }
+              { this.context.loginState.analyst &&
+  							<Divider />
+              }
+              { this.context.loginState.analyst &&
+  							<Link to={process.env.API_URL + "analytics"}>
+  								<ListItem button key="Site Analytics"><ListItemIcon><InsertChart /></ListItemIcon><ListItemText primary="Site Analytics" /></ListItem>
+  							</Link>
+              }
+              { this.context.loginState.superpower &&
+  							<Divider />
+              }
+              { this.context.loginState.superpower &&
+  							<Link to={process.env.API_URL + "superpower"}>
+  								<ListItem button key="Superpower"><ListItemIcon><Fingerprint /></ListItemIcon><ListItemText primary="Superpower" /></ListItem>
+  							</Link>
+              }
+              { this.context.loginState.superpower &&
+  							<Link to={process.env.API_URL + "dataSources"}>
+  								<ListItem button key="Data Sources"><ListItemIcon><Storage /></ListItemIcon><ListItemText primary="Data Sources" /></ListItem>
+  							</Link>
+              }
 						</List>
 					</Drawer>
 					<main className={classes.content}>
@@ -274,6 +274,9 @@ class Layout extends React.Component {
 						<Route
               path={process.env.API_URL + "analytics"}
               component={Analytics} />
+						<Route
+              path={process.env.API_URL + "dataSources"}
+              component={DataSources} />
 					</main>
 				</div>
 		);

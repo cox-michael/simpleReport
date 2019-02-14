@@ -64,7 +64,7 @@ class Superpower extends React.Component {
 			fetching: true,
 			fetchSuccess: false,
 		})
-		fetch(process.env.API_URL + 'superpower', {
+		fetch(process.env.API_URL + 'api/superpower', {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {
