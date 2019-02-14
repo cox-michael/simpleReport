@@ -110,7 +110,7 @@ class SessionProvider extends React.Component {
 		}
 		});
 
-		fetch(process.env.API_URL + 'getReportsForDef', {
+		fetch(process.env.API_URL + 'api/getReportsForDef', {
 			method: 'POST',
 			credentials: "same-origin",
 			headers: {

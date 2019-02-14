@@ -76,7 +76,7 @@ class Requests extends React.Component {
     //   voting: true,
     // });
 
-    fetch(process.env.API_URL + 'requestVote', {
+    fetch(process.env.API_URL + 'api/requestVote', {
       method: 'POST',
       credentials: "same-origin",
       headers: {
@@ -141,7 +141,7 @@ class Requests extends React.Component {
     this.setState({
       submitting: true,
     });
-    fetch(process.env.API_URL + 'createNewRequest', {
+    fetch(process.env.API_URL + 'api/createNewRequest', {
       method: 'POST',
       credentials: "same-origin",
       headers: {
