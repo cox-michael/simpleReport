@@ -1,0 +1,41 @@
+[
+    {
+        "$project": {
+            "subscriptions": 1,
+            "_id": 0
+        }
+    }, {
+        "$unwind": {
+            "path": "$subscriptions"
+        }
+    }, {
+        "$group": {
+            "_id": "$subscriptions",
+            "subscriptions": {
+                "$sum": 1
+            }
+        }
+    }, {
+        "$lookup": {
+            "from": "definitions",
+            "localField": "_id",
+            "foreignField": "_id",
+            "as": "definition"
+        }
+    }, {
+        "$project": {
+            "subscriptions": 1,
+            "name": {
+                "$arrayElemAt": [
+                    "$definition.name", 0
+                ]
+            }
+        }
+    }, {
+        "$sort": {
+            "subscriptions": -1
+        }
+    }, {
+        "$limit": 5
+    }
+]
