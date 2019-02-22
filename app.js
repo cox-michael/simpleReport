@@ -18,22 +18,9 @@ var FileStore = require('session-file-store')(session);
 const app = express();
 app.use(express.json()); // this allows you to send and receive json for API
 
-// var mongodb = require('mongodb');
-var MongoClient = require('mongodb').MongoClient;
 // Initialize MongoDB connection once
-MongoClient.connect(
-	"mongodb://" + process.env.DB_USER +
-	":" + process.env.DB_PASSWORD +
-	"@" + process.env.DB_HOST +
-	"/admin", { useNewUrlParser: true }, function(err, database) {
-	if(err) throw err;
-
-	app.dbo = database.db(process.env.DB_NAME);
-
-	// Start the application after the database connection is ready
-	app.listen(process.env.POOLING_PORT);
-	console.log(`MongoDB listening on port ${process.env.POOLING_PORT}`);
-});
+const connectToMongoDB = require('./server/connectToMongoDB.js')();
+connectToMongoDB(app);
 
 var fileStoreOptions = {};
 app.use(session({
