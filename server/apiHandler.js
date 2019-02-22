@@ -1,9 +1,7 @@
 const log = require('./logger.js')();
 const checkPermissions = require('./checkPermissions.js')();
 const apiResponse = require('./apiResponse.js')();
-// const test = require('./routes/getReports.js')();
-
-const path = require('path');
+// const path = require('path');
 
 module.exports = function() {
 

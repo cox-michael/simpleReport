@@ -5,10 +5,10 @@ var { getUser, auth } = require('./authenticate.js');
 module.exports = function () {
 
   const processLogin = (req) => {
-  	return new Promise((resolve, reject) => {
-  		console.log('processLogin');
-  		// console.log(session);
-  		// console.log(body);
+    return new Promise((resolve, reject) => {
+      console.log('processLogin');
+      // console.log(session);
+      // console.log(body);
 
       var session = req.session;
       var body = req.body;

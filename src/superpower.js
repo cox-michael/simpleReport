@@ -77,6 +77,8 @@ class Superpower extends React.Component {
 		})
 			.then(response => response.json())
 			.then(data => {
+				console.log('api success');
+				console.log(data);
 				if (data.success) {
 					this.context.handleLoginStatusChange(
 						data.isLoggedIn,
@@ -88,9 +90,10 @@ class Superpower extends React.Component {
 						fetching: false,
 						fetchSuccess: true,
 					});
-				} else {
-					this.context.handleLoginStatusChange(data.isLoggedIn);
 				}
+				//  else {
+				// 	this.context.handleLoginStatusChange(data.isLoggedIn);
+				// }
 
 				var snackMsg = data.success ? 'User changed' : 'Your superpowers have failed you'
 				this.context.openSnack(snackMsg);
