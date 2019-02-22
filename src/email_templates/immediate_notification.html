@@ -151,7 +151,7 @@ a[x-apple-data-detectors] {{
 
 
 
-             {rows}
+             ${this.rows}
 
 
 
@@ -194,7 +194,7 @@ a[x-apple-data-detectors] {{
                      <tr style="border-collapse:collapse;">
                       <td align="left" style="padding:0;Margin:0;">
 						<p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:14px;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:150%;color:#333333;">
-						  To see all the reports available, go to <a target="_blank" href="http://<%= htmlWebpackPlugin.options.FULL_URL %>" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;"><%= htmlWebpackPlugin.options.FULL_URL %></a>. You can also jump right to your <a target="_blank" href="http://<%= htmlWebpackPlugin.options.FULL_URL %>starred" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;">favorite reports</a>. If there's something you don't like or if you have a good idea for a new feature, share it with everyone through a <a target="_blank" href="http://<%= htmlWebpackPlugin.options.FULL_URL %>requests" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;">Feature Request</a>.
+						  To see all the reports available, go to <a target="_blank" href="http://${this.fullUrl}" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;">${this.fullUrl}</a>. You can also jump right to your <a target="_blank" href="http://${this.fullUrl}starred" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;">favorite reports</a>. If there's something you don't like or if you have a good idea for a new feature, share it with everyone through a <a target="_blank" href="http://${this.fullUrl}requests" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;">Feature Request</a>.
 						</p>
 					  </td>
                     </tr>
@@ -237,7 +237,7 @@ a[x-apple-data-detectors] {{
                   <td width="560" align="center" valign="top" style="padding:0;Margin:0;">
                    <table cellpadding="0" cellspacing="0" width="100%" style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px;">
                      <tr style="border-collapse:collapse;">
-                      <td align="left" style="padding:0;Margin:0;"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:14px;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:150%;color:#333333;"><span style="color:#808080;">If you no longer want to be notified about a particular report, you can <a target="_blank" href="http://<%= htmlWebpackPlugin.options.FULL_URL %>subscribed" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;">see all of your subscriptures to unsubscribe</a>.</span></p> </td>
+                      <td align="left" style="padding:0;Margin:0;"><p style="Margin:0;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-size:14px;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:150%;color:#333333;"><span style="color:#808080;">If you no longer want to be notified about a particular report, you can <a target="_blank" href="http://${this.fullUrl}subscribed" style="-webkit-text-size-adjust:none;-ms-text-size-adjust:none;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-size:14px;text-decoration:underline;color:#1376C8;">see all of your subscriptures to unsubscribe</a>.</span></p> </td>
                      </tr>
                    </table> </td>
                  </tr>
