@@ -21,7 +21,8 @@ const theme = createMuiTheme({
     primary: indigo,
     secondary: orange,
     // error: red,
-    // type: process.env.NODE_ENV == 'production' ? 'light' : 'dark',
+    // type: 'dark',
+    // type: process.env.NODE_ENV === 'production' ? 'light' : 'dark',
     // contrastThreshold: 3,
     // Used to shift a color's luminance by approximately
     // two indexes within its tonal palette.
@@ -49,12 +50,13 @@ class SessionProvider extends React.Component {
 				schedule: false,
 				report: {reports: []},
 			},
+      databases: [],
 		}
 
 		this.state.openSnack = this.openSnack.bind(this);
 		this.state.openReport = this.openReport.bind(this);
-
-		this.state.handleLoginStatusChange = this.props.handleLoginStatusChange.bind(this);
+    this.state.loadDatabases = this.loadDatabases.bind(this);
+    this.state.handleLoginStatusChange = this.props.handleLoginStatusChange.bind(this);
 	}
 
 	componentDidUpdate(prevProps) {
@@ -66,7 +68,6 @@ class SessionProvider extends React.Component {
 	}
 
 	openSnack = (msg, type='info') => {
-
     const newSnack = () => {
       this.setState({
   			snack: {
@@ -122,14 +123,14 @@ class SessionProvider extends React.Component {
 			})
 		})
 			.then(response => response.json())
-			.then(data => {
-				if (!data.isLoggedIn){
+			.then(response => {
+				if (!response.isLoggedIn){
 					console.log('Not logged in');
-					this.state.handleLoginStatusChange(false);
+					this.props.handleLoginStatusChange(false);
 					return;
 				}
 				report = this.state.report;
-				report.report.reports = data.reports;
+				report.report.reports = response.data;
 				report.loading = false;
 				// report.reports = [];
 				this.setState({
@@ -143,6 +144,22 @@ class SessionProvider extends React.Component {
 		report.open = false;
     this.setState({ report: report });
   };
+
+  loadDatabases = () => {
+		fetch(process.env.API_URL + 'api/getDataSources', {
+			credentials: "same-origin"
+		})
+		.then(response => response.json())
+		.then(response => {
+			if (!response.isLoggedIn){
+				this.props.handleLoginStatusChange(false);
+				return;
+			}
+			this.setState({
+				databases: response.data,
+			})
+		});
+  }
 
 	render() {
 		// if (this.state.report.schedule){
