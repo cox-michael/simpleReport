@@ -14,6 +14,9 @@ module.exports = () => {
     entry: './src/index.js',
     mode: 'development',
     watch: true,
+    watchOptions: {
+      ignored: /node_modules/
+    },
     module: {
       rules: [{
         test: /.js$/,
