@@ -20,7 +20,8 @@ module.exports = () => {
       // `chunkFilename` provides a template for naming code-split bundles (optional)
       chunkFilename: '[name].js',
       // `path` is the folder where Webpack will place your bundles
-      path: path.resolve(__dirname, 'dist'),
+      // path: path.resolve(__dirname, 'dist'),
+      path: path.resolve(process.cwd(), 'dist'),
       // `publicPath` is where Webpack will load your bundles from (optional)
       publicPath: 'dist/',
     },
@@ -36,6 +37,9 @@ module.exports = () => {
           },
         }],
       }],
+    },
+    resolve: {
+      symlinks: false,
     },
     plugins: [
       new webpack.DefinePlugin(envKeys),
