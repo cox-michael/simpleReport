@@ -1,14 +1,14 @@
 {
-  parser: "babel-eslint",
+  "parser": "babel-eslint",
   "extends": ["airbnb", "plugin:react/recommended"],
   "globals": { "fetch": false },
   "rules": {
     "react/jsx-filename-extension": [0],
     "react/forbid-prop-types": [0],
     "no-console": "off",
-     "operator-linebreak": "off",
-      "no-underscore-dangle": "off",
-       "arrow-parens": ["error", "as-needed"]
+    "operator-linebreak": "off",
+    "no-underscore-dangle": "off",
+    "arrow-parens": ["error", "as-needed"]
   },
   "env": {
     "jest": true,
