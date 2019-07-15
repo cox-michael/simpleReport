@@ -1,3 +1,4 @@
+import { hot } from 'react-hot-loader/root';
 import React, {
   Suspense, lazy, useState, useEffect,
 } from 'react';
@@ -50,4 +51,6 @@ const App = () => {
   );
 };
 
-export default App;
+const ExportedApp = process.env.NODE_ENV === 'development' ? hot(App) : App;
+
+export default ExportedApp;
