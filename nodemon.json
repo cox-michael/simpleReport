@@ -1,6 +1,6 @@
 {
   "watch": [
     "server/*",
-    "app.js"
+    "index.js"
   ]
 }
