@@ -59,12 +59,7 @@ const Snack = props => {
           </span>
         )}
         action={[
-          <IconButton
-            key="close"
-            aria-label="Close"
-            color="inherit"
-            onClick={closeSnack}
-          >
+          <IconButton key="close" onClick={closeSnack}>
             <CloseIcon />
           </IconButton>,
         ]}

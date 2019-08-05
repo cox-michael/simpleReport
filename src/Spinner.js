@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import {
+  CircularProgress,
+  Typography,
+} from '@material-ui/core';
 
 const styles = () => ({
   centerScreen: {
@@ -19,15 +22,19 @@ const styles = () => ({
 
 const Spinner = props => {
   const {
-    classes, size, centerScreen, center,
+    classes, size, centerScreen, center: centerProp, message,
   } = props;
+
+  const center = message ? true : centerProp;
 
   return (
     <div className={classes[center && 'center']}>
-      <CircularProgress
-        size={size}
-        className={classes[centerScreen && 'centerScreen']}
-      />
+      <div className={classes[centerScreen && 'centerScreen']}>
+        <CircularProgress size={size} />
+        {message && (
+          <div><Typography variant="caption" color="textSecondary">{message}</Typography></div>
+        )}
+      </div>
     </div>
   );
 };
@@ -37,12 +44,14 @@ Spinner.propTypes = {
   size: PropTypes.number,
   centerScreen: PropTypes.bool,
   center: PropTypes.bool,
+  message: PropTypes.string,
 };
 
 Spinner.defaultProps = {
   size: 60,
   centerScreen: false,
   center: false,
+  message: '',
 };
 
 export default withStyles(styles)(Spinner);

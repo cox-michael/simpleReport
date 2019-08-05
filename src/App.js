@@ -31,11 +31,11 @@ const App = () => {
       });
   }, []);
 
-  if (loading) return <Spinner centerScreen />;
+  if (loading) return <Spinner centerScreen message="Verifying login status..." />;
 
   if (loginState.isLoggedIn) {
     return (
-      <Suspense fallback={<Spinner centerScreen />}>
+      <Suspense fallback={<Spinner centerScreen message="Loading app layout..." />}>
         <RouterSessionLayout
           loginState={loginState}
           setLoginState={setLoginState}
@@ -45,7 +45,7 @@ const App = () => {
   }
 
   return (
-    <Suspense fallback={<Spinner centerScreen />}>
+    <Suspense fallback={<Spinner centerScreen message="Getting Sign-In form..." />}>
       <SignIn setLoginState={setLoginState} />
     </Suspense>
   );

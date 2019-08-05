@@ -117,7 +117,7 @@ const SignIn = props => {
               Sign in
             </Button>
             { loading &&
-              <Spinner centerScreen />
+              <Spinner centerScreen message="Signing in..." />
             }
             { (attempted && !loading) && (
               <Typography
