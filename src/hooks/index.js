@@ -1,4 +1,4 @@
-// index.js
 import useFetch from './useFetch';
+import useInput from './useInput';
 
-export { useFetch }; // eslint-disable-line import/prefer-default-export
+export { useFetch, useInput };
