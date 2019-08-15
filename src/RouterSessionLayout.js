@@ -20,6 +20,7 @@ const RouterSessionLayout = props => {
 };
 
 RouterSessionLayout.propTypes = {
+  // eslint-disable-next-line react/forbid-prop-types
   loginState: PropTypes.object.isRequired,
   setLoginState: PropTypes.func.isRequired,
 };
