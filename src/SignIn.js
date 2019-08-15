@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -9,10 +10,9 @@ import InputLabel from '@material-ui/core/InputLabel';
 import LockIcon from '@material-ui/icons/LockOutlined';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import withStyles from '@material-ui/core/styles/withStyles';
 import Spinner from './Spinner';
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   layout: {
     width: 'auto',
     display: 'block', // Fix IE 11 issue.
@@ -46,10 +46,11 @@ const styles = theme => ({
     marginTop: theme.spacing(2),
     textAlign: 'center',
   },
-});
+}));
 
 const SignIn = props => {
-  const { classes, setLoginState } = props;
+  const classes = useStyles();
+  const { setLoginState } = props;
   const [loading, setLoading] = useState(false);
   const [attempted, setAttempted] = useState(false);
   const [username, setUsername] = useState('');
@@ -141,8 +142,7 @@ const SignIn = props => {
 };
 
 SignIn.propTypes = {
-  classes: PropTypes.object.isRequired,
   setLoginState: PropTypes.func.isRequired,
 };
 
-export default withStyles(styles)(SignIn);
+export default SignIn;

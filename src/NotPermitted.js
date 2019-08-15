@@ -1,10 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+// import PropTypes from 'prop-types';
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   button: {
     marginRight: theme.spacing(1),
     marginBottom: theme.spacing(1),
@@ -18,11 +18,10 @@ const styles = theme => ({
     padding: `${theme.spacing(1) * 4}px ${theme.spacing(1) * 6}px ${theme.spacing(1) * 6}px`,
     textAlign: 'center',
   },
-});
+}));
 
-
-const NotPermitted = props => {
-  const { classes } = props;
+const NotPermitted = () => {
+  const classes = useStyles();
   return (
     <Paper className={classes.paper}>
       <Typography variant="h5">Oops. You are not permitted access.</Typography>
@@ -30,8 +29,8 @@ const NotPermitted = props => {
   );
 };
 
-NotPermitted.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
+// NotPermitted.propTypes = {
+//   classes: PropTypes.object.isRequired,
+// };
 
-export default withStyles(styles)(NotPermitted);
+export default NotPermitted;

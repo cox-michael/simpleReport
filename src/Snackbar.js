@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 import IconButton from '@material-ui/core/IconButton';
@@ -13,7 +13,7 @@ import ErrorIcon from '@material-ui/icons/Error';
 import amber from '@material-ui/core/colors/amber';
 import teal from '@material-ui/core/colors/teal';
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   success: {
     backgroundColor: teal[400],
   },
@@ -34,11 +34,12 @@ const styles = theme => ({
   message: {
     display: 'flex',
   },
-});
+}));
 
 const Snack = props => {
+  const classes = useStyles();
   const {
-    classes, open, closeSnack, type, msg, autohide,
+    open, closeSnack, type, msg, autohide,
   } = props;
 
   return (
@@ -69,7 +70,6 @@ const Snack = props => {
 };
 
 Snack.propTypes = {
-  classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
   closeSnack: PropTypes.func.isRequired,
   type: PropTypes.oneOf(['success', 'error', 'info']),
@@ -85,4 +85,4 @@ Snack.defaultProps = {
   type: 'info',
 };
 
-export default withStyles(styles)(Snack);
+export default Snack;

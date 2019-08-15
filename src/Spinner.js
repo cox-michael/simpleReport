@@ -1,12 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   CircularProgress,
   Typography,
 } from '@material-ui/core';
 
-const styles = () => ({
+const useStyles = makeStyles(() => ({
   centerScreen: {
     position: 'absolute',
     top: '50%',
@@ -18,11 +18,12 @@ const styles = () => ({
     width: '100%',
     textAlign: 'center',
   },
-});
+}));
 
 const Spinner = props => {
+  const classes = useStyles();
   const {
-    classes, size, centerScreen, center: centerProp, message,
+    size, centerScreen, center: centerProp, message,
   } = props;
 
   const center = message ? true : centerProp;
@@ -40,7 +41,6 @@ const Spinner = props => {
 };
 
 Spinner.propTypes = {
-  classes: PropTypes.object.isRequired,
   size: PropTypes.number,
   centerScreen: PropTypes.bool,
   center: PropTypes.bool,
@@ -54,4 +54,4 @@ Spinner.defaultProps = {
   message: '',
 };
 
-export default withStyles(styles)(Spinner);
+export default Spinner;
