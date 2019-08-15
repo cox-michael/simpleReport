@@ -4,7 +4,6 @@
   "globals": { "fetch": false },
   "rules": {
     "react/jsx-filename-extension": [0],
-    "react/forbid-prop-types": [0],
     "no-console": "off",
     "operator-linebreak": "off",
     "no-underscore-dangle": "off",
