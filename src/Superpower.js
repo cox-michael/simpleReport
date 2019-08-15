@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 // import { Fingerprint } from '@material-ui/icons';
 // import IconButton from '@material-ui/core/IconButton';
 import Paper from '@material-ui/core/Paper';
@@ -16,7 +16,7 @@ import Spinner from './Spinner';
 import { SessionContext } from './Session';
 import { useFetch } from './hooks';
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   paper: {
     padding: theme.spacing(1) * 6,
   },
@@ -30,10 +30,11 @@ const styles = theme => ({
     left: -39,
     zIndex: 10000,
   },
-});
+}));
 
 const Superpower = props => {
-  const { classes, history } = props;
+  const classes = useStyles();
+  const { history } = props;
   const [username, setUsername] = useState('');
   const [fetching, setFetching] = useState(false);
   // const [fetchSuccess, setFetchSuccess] = useState(false);
@@ -155,8 +156,8 @@ const Superpower = props => {
 };
 
 Superpower.propTypes = {
-  classes: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   history: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Superpower);
+export default Superpower;
