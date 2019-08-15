@@ -1,4 +1,5 @@
 import useFetch from './useFetch';
 import useInput from './useInput';
+import useSocket from './useSocket';
 
-export { useFetch, useInput };
+export { useFetch, useInput, useSocket };
