@@ -31,7 +31,7 @@ const Spinner = props => {
   return (
     <div className={classes[center && 'center']}>
       <div className={classes[centerScreen && 'centerScreen']}>
-        <CircularProgress size={size} />
+        <CircularProgress disableShrink size={size} />
         {message && (
           <div><Typography variant="caption" color="textSecondary">{message}</Typography></div>
         )}
