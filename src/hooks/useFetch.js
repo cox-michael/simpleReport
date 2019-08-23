@@ -32,9 +32,11 @@ const useFetch = (endpoint, cb, method = 'POST') => {
         }
         if (response.status === 404) {
           openSnack('API not found', 'error');
+          setLoading(false);
         }
         if (response.status === 500) {
           openSnack('Internal Server Error', 'error');
+          setLoading(false);
         }
         response.json().then(({ data, messages, success }) => {
           const errorMsg = messages.length ? messages[0] : 'An unknown error occurred';
