@@ -1,6 +1,7 @@
 {
   "watch": [
     "server/*",
-    "index.js"
+    "index.js",
+    ".env"
   ]
 }
