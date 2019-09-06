@@ -9,23 +9,19 @@ const SignIn = lazy(() => import('./SignIn'));
 
 const App = () => {
   const [loading, setLoading] = useState(true);
-  const [loginState, setLS] = useState({
+  const [loginState, setLoginState] = useState({
     isLoggedIn: false,
     displayName: '',
     userid: '',
     permissions: {},
-  });
-
-  const setLoginState = ({
-    isLoggedIn, displayName, userid, permissions,
-  }) => setLS({
-    isLoggedIn, displayName, userid, permissions,
+    preferences: {},
   });
 
   useEffect(() => {
     fetch(`${process.env.API_URL}loggedIn`, { credentials: 'same-origin' })
       .then(response => response.json())
       .then(data => {
+        console.log({ data });
         setLoginState(data);
         setLoading(false);
       });
@@ -36,17 +32,14 @@ const App = () => {
   if (loginState.isLoggedIn) {
     return (
       <Suspense fallback={<Spinner centerScreen message="Loading app layout..." />}>
-        <RouterSessionLayout
-          loginState={loginState}
-          setLoginState={setLoginState}
-        />
+        <RouterSessionLayout {...{ loginState, setLoginState }} />
       </Suspense>
     );
   }
 
   return (
     <Suspense fallback={<Spinner centerScreen message="Getting Sign-In form..." />}>
-      <SignIn setLoginState={setLoginState} />
+      <SignIn {...{ setLoginState }} />
     </Suspense>
   );
 };
