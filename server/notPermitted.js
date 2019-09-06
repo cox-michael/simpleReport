@@ -10,7 +10,14 @@ module.exports = options => {
     scope, permission, friendlyRejection, sendResponse, cb, session,
   } = { ...defaults, ...options };
 
-  const scopePerms = session.permissions[scope];
+  if (!session.isLoggedIn) {
+    console.log('Not logged in');
+    if (sendResponse && cb) cb(['You are not logged in']);
+    return true;
+  }
+
+  let scopePerms;
+  if (session && session.permissions) scopePerms = session.permissions[scope];
 
   if (!scopePerms || !scopePerms.includes(permission)) {
     console.log('Not permitted');
