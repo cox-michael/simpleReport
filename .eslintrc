@@ -7,7 +7,17 @@
     "no-console": "off",
     "operator-linebreak": "off",
     "no-underscore-dangle": "off",
-    "arrow-parens": ["error", "as-needed"]
+    "arrow-parens": ["error", "as-needed"],
+    "no-mixed-operators": [
+      "error",
+      {
+          "groups": [
+              ["*", "/"]
+          ],
+          "allowSamePrecedence": true
+      }
+    ],
+    "react/jsx-props-no-spreading": [0]
   },
   "env": {
     "jest": true,
