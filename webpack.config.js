@@ -73,6 +73,12 @@ module.exports = env => {
         template: 'src/index_template.html',
         inject: false,
       }),
+      new HtmlWebpackPlugin({
+        TITLE: process.env.TITLE,
+        filename: 'index.html',
+        template: 'src/index_template.html',
+        inject: false,
+      }),
     ],
   };
 };
