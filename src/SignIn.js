@@ -79,7 +79,7 @@ const SignIn = props => {
   };
 
   return (
-    <React.Fragment>
+    <>
       <CssBaseline />
       <main className={classes.layout}>
         <Paper className={classes.paper}>
@@ -117,9 +117,7 @@ const SignIn = props => {
             >
               Sign in
             </Button>
-            { loading &&
-              <Spinner centerScreen message="Signing in..." />
-            }
+            { loading && <Spinner centerScreen message="Signing in..." /> }
             { (attempted && !loading) && (
               <Typography
                 variant="subtitle1"
@@ -137,7 +135,7 @@ const SignIn = props => {
           </form>
         </Paper>
       </main>
-    </React.Fragment>
+    </>
   );
 };
 
