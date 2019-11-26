@@ -42,19 +42,18 @@ const findUsers = query => new Promise((resolve, reject) => {
   });
 });
 
-module.exports = app => app.post(app.routeFromName(__filename), (req, res) => {
+module.exports = app => app.post(app.routeFromName(__filename), async (req, res) => {
   const perms = { scope: 'sitewide', permission: 'Edit User Permissions' };
   if (res.notPermitted(perms)) return;
 
   const schema = Joi.string().regex(/^[\w\-\s.]+$/).min(2).required();
-  Joi.validate(req.body.query, schema, err => {
-    if (err) {
-      console.log(err);
-      res.status(400).success(false).messages(['Invalid query']).apiRes([]);
-      return;
-    }
 
-    findUsers(req.body.query)
-      .then(users => res.apiRes(users));
-  });
+  try {
+    const validated = await schema.validate(req.body.query);
+    console.log({ validated, query: req.body.query });
+    findUsers(validated.value).then(users => res.apiRes(users));
+  } catch (err) {
+    console.log(err);
+    res.status(400).success(false).messages(['Invalid query']).apiRes([]);
+  }
 });
