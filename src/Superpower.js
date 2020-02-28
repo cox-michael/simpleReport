@@ -12,7 +12,7 @@ import Typography from '@material-ui/core/Typography';
 // import CheckIcon from '@material-ui/icons/Check';
 // import CircularProgress from '@material-ui/core/CircularProgress';
 import AutocompleteSelect from './AutocompleteSelect';
-import Spinner from './Spinner';
+import { Spinner } from './components';
 import { SessionContext } from './Session';
 import { useFetch } from './hooks';
 

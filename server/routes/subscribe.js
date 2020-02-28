@@ -1,28 +1,42 @@
-const assert = require('assert');
 const mongodb = require('mongodb');
-const apiResponse = require('./../apiResponse.js')();
+const Joi = require('@hapi/joi');
 
-module.exports = function() {
-  const module = {};
-  module.permissionLevel = 1;
+module.exports = app => app.post(app.routeFromName(__filename), async (req, res) => {
+  const schema = Joi.object().keys({
+    reportId: Joi.string().regex(/^[0-9a-fA-F]{24}$/).required(),
+  }).options({ stripUnknown: true });
 
-  module.fn = (req, res) => {
-    req.app.dbo.collection("users").findOneAndUpdate({
-        _id: mongodb.ObjectId(req.session.userid)
-      }, {
-        $push: {
-          subscriptions: mongodb.ObjectId(req.body.reportId)
-        }
-      }, {
-        upsert: 1
+  let body;
+  try {
+    body = await schema.validateAsync(req.body);
+  } catch (err) {
+    console.log(err.message);
+    res.success(false).messages([err.message]).apiRes();
+    return;
+  }
+
+  req.app.dbo.collection('users').findOneAndUpdate(
+    {
+      _id: mongodb.ObjectId(req.session.userid),
+    },
+    {
+      $addToSet: {
+        subscriptions: mongodb.ObjectId(body.reportId),
       },
-      function(err, result) {
-        assert.equal(err, null);
-        assert.equal(1, result.ok);
-        console.log('Inserted 1 subscription into users');
-        res.json(apiResponse());
-      });
-  };
-
-  return module;
-};
+    },
+    {
+      upsert: 1,
+    },
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        res.status(500).success(false).messages([err.message]).apiRes([]);
+      }
+      if (!result.lastErrorObject.updatedExisting) {
+        res.status(500).success(false).messages(['Could not find user.']).apiRes([]);
+        return;
+      }
+      res.messages(['Report added to subscriptions.']).apiRes([]);
+    },
+  );
+});

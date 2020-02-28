@@ -1,12 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core/styles';
 import { withRouter } from 'react-router';
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import classNames from 'classnames';
+// import classNames from 'classnames';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -14,27 +15,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import IconButton from '@material-ui/core/IconButton';
 
 const drawerWidth = 240;
-const styles = theme => ({
-  drawerPaper: {
-    position: 'sticky',
-    whiteSpace: 'nowrap',
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerPaperClose: {
-    overflowX: 'hidden',
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    width: theme.spacing(1) * 7,
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(1) * 9,
-    },
-  },
+const useStyles = makeStyles(theme => ({
   toolbar: {
     display: 'flex',
     alignItems: 'center',
@@ -42,21 +23,51 @@ const styles = theme => ({
     padding: '0 8px',
     ...theme.mixins.toolbar,
   },
-});
+  drawer: {
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+  },
+  drawerOpen: {
+    width: drawerWidth,
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  },
+  drawerClose: {
+    transition: theme.transitions.create('width', {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: 'hidden',
+    width: theme.spacing(7) + 1,
+    [theme.breakpoints.up('sm')]: {
+      width: theme.spacing(9) + 1,
+    },
+  },
+}));
 
 const MenuDrawer = props => {
+  const classes = useStyles();
   const {
-    classes, open, toggleDrawer, menuItems, theme, history,
+    open, toggleDrawer, menuItems, theme, history,
   } = props;
 
   return (
     <Drawer
-      variant="temporary"
+      variant="permanent"
+      className={clsx(classes.drawer, {
+        [classes.drawerOpen]: open,
+        [classes.drawerClose]: !open,
+      })}
       classes={{
-        paper: classNames(classes.drawerPaper, !open && classes.drawerPaperClose),
+        paper: clsx({
+          [classes.drawerOpen]: open,
+          [classes.drawerClose]: !open,
+        }),
       }}
       open={open}
-      onClick={toggleDrawer}
     >
       <div className={classes.toolbar}>
         <IconButton onClick={toggleDrawer}>
@@ -85,14 +96,16 @@ const MenuDrawer = props => {
 };
 
 MenuDrawer.propTypes = {
-  classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
   toggleDrawer: PropTypes.func.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   menuItems: PropTypes.array.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   theme: PropTypes.object.isRequired,
+  // eslint-disable-next-line react/forbid-prop-types
   history: PropTypes.object.isRequired,
 };
 
 const MenuDrawerWithRouter = withRouter(MenuDrawer);
 
-export default withStyles(styles)(MenuDrawerWithRouter);
+export default MenuDrawerWithRouter;

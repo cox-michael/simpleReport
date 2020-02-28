@@ -22,30 +22,30 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 const styles = theme => ({
   card: {
     width: 800,
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: theme.spacing(1) * 2,
   },
   content: {
     width: 712,
   },
   author: {
     fontSize: 14,
-    marginTop: theme.spacing.unit * 2,
+    marginTop: theme.spacing(1) * 2,
   },
 	button: {
-		// margin: theme.spacing.unit,
+		// margin: theme.spacing(1),
     fontSize: 42,
 	},
 	iconButton: {
-		padding: theme.spacing.unit / 2,
+		padding: theme.spacing(1) / 2,
 	},
 	buttons: {
-		marginBottom: theme.spacing.unit,
+		marginBottom: theme.spacing(1),
 		textAlign: 'right',
 	},
   floating: {
     position: 'fixed',
-    top: theme.spacing.unit * 10,
-    right: theme.spacing.unit * 3,
+    top: theme.spacing(1) * 10,
+    right: theme.spacing(1) * 3,
   },
 });
 

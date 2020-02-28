@@ -1,69 +1,18 @@
-const apiResponse = require('./../apiResponse.js')();
+const Joi = require('@hapi/joi');
 
-module.exports = function() {
-  const module = {};
-  // level 1 => user must be logged in
-  // level 2 => user must be an analyst
-  // level 3 => user must have superpowers
-  module.permissionLevel = 1;
+const schema = Joi.object().keys({
+  _id: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
+}).options({ stripUnknown: true });
 
-  module.fn = (req, res) => {
-    const query = [{
-      "$project": {
-        "schedules": 1,
-        "name": 1
-      }
-    }, {
-      "$unwind": {
-        "path": "$schedules"
-      }
-    }, {
-      "$lookup": {
-        "from": "reports",
-        "localField": "_id",
-        "foreignField": "definition_id",
-        "as": "lastRun"
-      }
-    }, {
-      "$addFields": {
-        "lastRun": {
-          "$toDate": {
-            "$max": "$lastRun._id"
-          }
-        }
-      }
-    }];
+module.exports = app => app.post(app.routeFromName(__filename), async (req, res) => {
+  try {
+    const { _id } = await schema.validateAsync(req.body);
 
-    if (!req.session.analyst) {
-      query.unshift({
-        $match: {
-          $expr: {
-            $or: [{
-                $eq: ["$permissions.company." + req.session.permissionLevel,
-                  true
-                ]
-              },
-              {
-                $and: [{
-                    $eq: ["$dept", req.session.ldap.department]
-                  },
-                  {
-                    $eq: ["$permissions.dept." + req.session.permissionLevel,
-                      true
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      });
-    }
+    const jobs = await app.agenda.jobs({ name: _id });
 
-    req.app.dbo.collection('definitions').aggregate(query).toArray((err, docs) => {
-      res.json(apiResponse(docs));
-    });
-  };
-
-  return module;
-};
+    res.apiRes(jobs);
+  } catch (err) {
+    console.error(err);
+    res.status(500).success(false).messages([err.message]).apiRes([]);
+  }
+});

@@ -1,35 +1,42 @@
 import React, {
-  useState, useContext, Suspense, lazy,
+  useState,
+  useContext,
+  Suspense,
+  // lazy,
 } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
+// import PropTypes from 'prop-types';
+import clsx from 'clsx';
 import { withRouter } from 'react-router';
 import { Route, Switch } from 'react-router-dom';
-import { withStyles } from '@material-ui/core/styles';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Typography from '@material-ui/core/Typography';
-import Breadcrumbs from '@material-ui/core/Breadcrumbs';
-import Link from '@material-ui/core/Link';
-import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import MenuIcon from '@material-ui/icons/Menu';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import {
-  Assignment, MeetingRoom, Brightness3, Brightness7,
+  AppBar,
+  Button,
+  IconButton,
+  Toolbar,
+  Typography,
+  // Breadcrumbs,
+  // Link,
+  Tooltip,
+} from '@material-ui/core';
+import {
+  // Assignment,
+  MeetingRoom,
+  Menu,
+  Brightness3,
+  Brightness7,
 } from '@material-ui/icons';
-import Button from '@material-ui/core/Button';
-import Spinner from '@bit/ldsmike88.simplereport.spinner';
 import { SessionContext } from '../Session';
 import MenuDrawer from './MenuDrawer';
 import getMenuItems from './menuItems';
-// import Spinner from '../Spinner';
+import { Row, Spinner } from '../components';
+import ViewSingleReport from '../ViewSingleReport';
 // import Transition from './Transition';
 
-const Branch = lazy(() => import('../Branch'));
+// const Branch = lazy(() => import('../Branch'));
 
 const drawerWidth = 240;
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     display: 'flex',
   },
@@ -53,22 +60,10 @@ const styles = theme => ({
     }),
   },
   menuButton: {
-    marginLeft: 12,
     marginRight: 36,
   },
   hide: {
     display: 'none',
-  },
-  toolbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 8px',
-    ...theme.mixins.toolbar,
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(1) * 3,
   },
   leftIcon: {
     marginRight: theme.spacing(1),
@@ -80,21 +75,32 @@ const styles = theme => ({
   breadLink: {
     color: '#ffffffd9',
   },
-  leftDiv: {
-    display: 'inline-flex',
+  marginTop: {
+    marginTop: theme.spacing(1),
   },
-});
+  content: {
+    flexGrow: 1,
+    padding: theme.spacing(3),
+    marginTop: theme.spacing(7),
+  },
+}));
 
-const Layout = props => {
+const Layout = () => {
+  const classes = useStyles();
+  const theme = useTheme();
   const {
-    setLoginState, branches, loginState, darkMode, setDarkMode,
+    setLoginState,
+    // branches,
+    loginState,
+    darkMode,
+    setDarkMode,
   } = useContext(SessionContext);
-  const { classes, theme, history: { location: { pathname }, push } } = props;
+  // const context = useContext(SessionContext);
+  // console.log({ context });
   const [open, setOpen] = useState(false);
 
-  const exclude = ['', 'br', 'projects', 'forms', 'editForm', 'reviews'];
-  const pathnames = pathname.split('/').filter(x => !exclude.includes(x));
-
+  // const exclude = ['', 'br', 'projects', 'forms', 'editForm', 'reviews'];
+  // const pathnames = pathname.split('/').filter(x => !exclude.includes(x));
 
   const toggleDrawer = () => setOpen(!open);
 
@@ -109,119 +115,121 @@ const Layout = props => {
     }).then(() => setLoginState({ ...loginState, isLoggedIn: false }));
   };
 
-  const handleClick = (e, href) => {
-    e.preventDefault();
-    console.log({ e });
-    push(href);
-  };
+  // const handleClick = (e, href) => {
+  //   e.preventDefault();
+  //   console.log({ e });
+  //   push(href);
+  // };
 
-  const branchMenuItems = branches.map(branch => ({
-    // path: `${process.env.API_URL}br/:branchName/:itemType?/:itemName?`,
-    to: `${process.env.API_URL}br/${branch.name}`,
-    // to: `${process.env.API_URL}br/${branch.name}/forms/Liability`,
-    name: branch.name,
-    icon: Assignment,
-    component: Branch,
-    // hidden: true,
-    // exact: false,
-  }));
+  // const branchMenuItems = branches.map(branch => ({
+  //   // path: `${process.env.API_URL}br/:branchName/:itemType?/:itemName?`,
+  //   to: `${process.env.API_URL}br/${branch.name}`,
+  //   // to: `${process.env.API_URL}br/${branch.name}/forms/Liability`,
+  //   name: branch.name,
+  //   icon: Assignment,
+  //   component: Branch,
+  //   // hidden: true,
+  //   // exact: false,
+  // }));
 
   const menuItems = getMenuItems(loginState);
-  menuItems.splice(1, 0, ...branchMenuItems);
+  // menuItems.splice(1, 0, ...branchMenuItems);
+
+  // return <div>hello</div>;
 
   return (
     <div className={classes.root}>
-      <CssBaseline />
       <AppBar
         position="fixed"
-        className={classNames(classes.appBar, {
-          [classes.appBarShift]: open,
-        })}
+        className={clsx(classes.appBar, { [classes.appBarShift]: open })}
       >
-        <Toolbar disableGutters={!open}>
+        {/* <Toolbar disableGutters={!open}> */}
+        <Toolbar>
           <IconButton
             color="inherit"
-            aria-label="Open drawer"
             onClick={toggleDrawer}
-            className={classNames(classes.menuButton, {
-              [classes.hide]: open,
-            })}
+            edge="start"
+            className={clsx(classes.menuButton, { [classes.hide]: open })}
           >
-            <MenuIcon />
+            <Menu />
           </IconButton>
-
-          <Breadcrumbs className={classes.grow}>
-            { pathnames.length ? (
-              <Link
-                href="/"
-                className={classes.breadLink}
-                onClick={e => handleClick(e, '/')}
-              >
-                ReviewPoint
-                {process.env.NODE_ENV !== 'production' && ` - ${process.env.NODE_ENV}`}
-              </Link>
-            ) : (
-              <Typography variant="h6" color="inherit" noWrap>
-                ReviewPoint
-                {process.env.NODE_ENV !== 'production' && ` - ${process.env.NODE_ENV}`}
-              </Typography>
-            )}
-            { pathnames.map((value, index) => {
-              const last = index === pathnames.length - 1;
-              const to = pathname
-                .substring(0, pathname.indexOf(value) + value.length);
-
-              const crumb = new Proxy({
-                config: 'Configuration',
-                userPermissions: 'User Permissions',
-                superpower: 'Superpower',
-                help: 'Help',
-                // eslint-disable-next-line no-confusing-arrow
-              }, { get: (target, name) => target[name] ? target[name] : name });
-
-              return last ? (
-                <Typography variant="h6" color="inherit" noWrap key={to}>
-                  {crumb[value]}
-                </Typography>
-              ) : (
-                <Link
-                  className={classes.breadLink}
-                  href={to}
-                  key={to}
-                  onClick={e => handleClick(e, to)}
-                >
-                  {crumb[value]}
-                </Link>
-              );
-            })}
-          </Breadcrumbs>
-          <div className={classes.leftDiv}>
-            <Tooltip title={`Turn ${darkMode ? 'off' : 'on'} dark mode`}>
-              <IconButton onClick={() => setDarkMode(!darkMode)}>
-                { darkMode ? <Brightness7 /> : <Brightness3 /> }
-              </IconButton>
-            </Tooltip>
-            <Typography variant="subtitle2" color="inherit" noWrap>
-              <div className={classes.displayName}>
-                { loginState.displayName }
-              </div>
+          <Row justifyContent="space-between" alignItems="center" flexGrow={1}>
+            <Typography variant="h6" noWrap>
+              {process.env.TITLE}
             </Typography>
-            <Button color="inherit" onClick={handleLogout}>
-              <MeetingRoom className={classes.leftIcon} />
-              Logout
-            </Button>
-          </div>
+
+            <Row justifyContent="flex-end">
+              <Tooltip title={`Turn ${darkMode ? 'off' : 'on'} dark mode`}>
+                <IconButton onClick={() => setDarkMode(!darkMode)}>
+                  { darkMode ? <Brightness7 /> : <Brightness3 /> }
+                </IconButton>
+              </Tooltip>
+              <Typography variant="subtitle2" color="inherit" noWrap>
+                <div className={classes.displayName}>
+                  { loginState.displayName }
+                </div>
+              </Typography>
+              <Button color="inherit" onClick={handleLogout} className={classes.marginTop}>
+                <MeetingRoom className={classes.leftIcon} />
+                Logout
+              </Button>
+            </Row>
+          </Row>
         </Toolbar>
+
+
+        {/* <Breadcrumbs className={classes.grow}>
+          { pathnames.length ? (
+            <Link
+              href="/"
+              className={classes.breadLink}
+              onClick={e => handleClick(e, '/')}
+            >
+              ReviewPoint
+              {process.env.NODE_ENV !== 'production' && ` - ${process.env.NODE_ENV}`}
+            </Link>
+          ) : (
+            <Typography variant="h6" color="inherit" noWrap>
+              ReviewPoint
+              {process.env.NODE_ENV !== 'production' && ` - ${process.env.NODE_ENV}`}
+            </Typography>
+          )}
+          { pathnames.map((value, index) => {
+            const last = index === pathnames.length - 1;
+            const to = pathname.substring(0, pathname.indexOf(value) + value.length);
+
+            const crumb = new Proxy({
+              config: 'Configuration',
+              userPermissions: 'User Permissions',
+              superpower: 'Superpower',
+              help: 'Help',
+              // eslint-disable-next-line no-confusing-arrow
+            }, { get: (target, name) => target[name] ? target[name] : name });
+
+            return last ? (
+              <Typography variant="h6" color="inherit" noWrap key={to}>
+                {crumb[value]}
+              </Typography>
+            ) : (
+              <Link
+                className={classes.breadLink}
+                href={to}
+                key={to}
+                onClick={e => handleClick(e, to)}
+              >
+                {crumb[value]}
+              </Link>
+            );
+          })}
+        </Breadcrumbs> */}
+        {/* </Toolbar> */}
       </AppBar>
-      <MenuDrawer
-        open={open}
-        toggleDrawer={toggleDrawer}
-        menuItems={menuItems}
-        theme={theme}
+      <MenuDrawer {...{
+        open, toggleDrawer, menuItems, theme,
+      }}
       />
-      { /* <Transition> */ }
       <main className={classes.content}>
-        <div className={classes.toolbar} />
+        {/* <div className={classes.toolbar} /> */}
         { menuItems.filter(item => item.path).map(item => (
           <Suspense fallback={<Spinner centerScreen />} key={item.name}>
             <Switch>
@@ -234,15 +242,15 @@ const Layout = props => {
           </Suspense>
         ))}
       </main>
+      <ViewSingleReport />
       { /* </Transition> */ }
     </div>
   );
 };
 
-Layout.propTypes = {
-  classes: PropTypes.object.isRequired,
-  theme: PropTypes.object.isRequired,
-  history: PropTypes.object.isRequired,
-};
+// Layout.propTypes = {
+//   // eslint-disable-next-line react/forbid-prop-types
+//   // history: PropTypes.object.isRequired,
+// };
 
-export default withStyles(styles, { withTheme: true })(withRouter(Layout));
+export default withRouter(Layout);

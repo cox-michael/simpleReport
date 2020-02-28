@@ -2,7 +2,7 @@ import { hot } from 'react-hot-loader/root';
 import React, {
   Suspense, lazy, useState, useEffect,
 } from 'react';
-import Spinner from './Spinner';
+import { Spinner } from './components';
 
 const RouterSessionLayout = lazy(() => import('./RouterSessionLayout'));
 const SignIn = lazy(() => import('./SignIn'));
@@ -21,7 +21,6 @@ const App = () => {
     fetch(`${process.env.API_URL}loggedIn`, { credentials: 'same-origin' })
       .then(response => response.json())
       .then(data => {
-        console.log({ data });
         setLoginState(data);
         setLoading(false);
       });

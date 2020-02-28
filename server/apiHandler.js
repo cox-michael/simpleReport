@@ -3,12 +3,9 @@ const checkPermissions = require('./checkPermissions.js')();
 const apiResponse = require('./apiResponse.js')();
 // const path = require('path');
 
-module.exports = function() {
-
+module.exports = () => {
   const apiHandler = (req, res) => {
-    log(req);
-
-    const handle = req.params.handle;
+    const { handle } = req.params;
     const routes = {};
 
     // Load route if it hasn't already been loaded
@@ -17,6 +14,7 @@ module.exports = function() {
         // console.log(`./routes/${handle}.js`);
         // console.log(path.join(__dirname + `/routes/${handle}.js`));
         // routes[handle] = require(path.join(__dirname + `/routes/${handle}.js`))();
+        // eslint-disable-next-line import/no-dynamic-require, global-require
         routes[handle] = require(`./routes/${handle}.js`)();
       } catch (err) {
         const errorMsg = `Module not found for "${handle}"`;

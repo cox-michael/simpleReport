@@ -13,8 +13,8 @@ import Paper from '@material-ui/core/Paper';
 
 const styles = theme => ({
   paper: {
-    margin: theme.spacing.unit * 4,
-    padding: theme.spacing.unit * 2
+    margin: theme.spacing(1) * 4,
+    padding: theme.spacing(1) * 2
   },
 });
 

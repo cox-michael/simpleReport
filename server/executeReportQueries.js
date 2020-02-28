@@ -1,98 +1,138 @@
 const odbc = require('odbc');
+const sqlite3 = require('sqlite3').verbose();
+const { ObjectId } = require('mongodb');
 
-const log = false;
-
-const queryData = (connectionString, query) => {
-	return new Promise((resolve, reject) => {
-		var db = new odbc.Database();
-		db.open(connectionString, err => {
-			if (err) reject(err.message);
-
-			// TODO: find out if moreResultSets is necessary
-			db.query(query, (err, rows, moreResultSets) => {
-				if (err) reject(err.message);
-				resolve(rows);
-			});
-			db.close(err => { // TODO: switch err to () and make sure it works
-				if (log) console.log("the database connection is now closed");
-			});
-		});
-	});
-};
-
-const loopDataSource =(connStrings, dataSource) => {
-  if (log) console.log('\t\tstarting dataSource');
-  return new Promise(resolve => {
-    const connectionString = connStrings.filter(conn => conn._id == dataSource.database)[0].connectionString;
-    queryData(connectionString, dataSource.query)
-      .then(results => {
-        // console.log('Query results:');
-        // console.log(results);
-        dataSource.data = results;
-        if (log) console.log('\t\tresolve dataSource');
-        resolve(dataSource);
-      })
-      .catch(err => resolve(err));
+const executeReportQueries = async (report, dbo) => {
+  // Get connection strings from MongoDB ////////////////////////////////////////////////////
+  const connStrings = {};
+  // const friendlyNames = {};
+  const dsQuery = [{
+    $project: {
+      connString: 1,
+      friendlyName: 1,
+    },
+  }];
+  const connStrResults = await dbo.collection('connections').aggregate(dsQuery).toArray();
+  connStrResults.forEach(cs => {
+    connStrings[cs._id] = { connString: cs.connString, friendlyName: cs.friendlyName };
   });
-};
 
-const loopTable =(connStrings, table) => {
-  if (log) console.log('\tstarting table: ' + table.name);
-  return new Promise(resolve => {
-    if (!Array.isArray(table.dataSources)) {
-      if (log) console.log('\trejecting');
-      resolve();
-    }
-    table.dataSources.reduce(
-      (chain, dataSource) => chain.then(() => loopDataSource(connStrings, dataSource)),
-      Promise.resolve()
-    ).then(() => {
-      // TODO: This is where the logic goes for combining (Union and Join) the
-      // data. Consider how grouping across queries would work.
-      if (table.dataSources && table.dataSources.length) {
-        table.data = table.dataSources[0].data;
-      }
-      if (log) console.log('\tresolve table: ' + table.name);
-      resolve(table);
-    });
-  });
-};
+  // Check for any SQLite Queries ////////////////////////////////////////////////////////////
+  const sqlitePresent = report.dataSources
+    .some(ds => ds.type === 'Query' && connStrings[ds.connectionId].connString === 'sqlite');
 
-const loopSheet = (connStrings, sheet) => {
-  if (log) console.log('starting sheet: ' + sheet.name);
-  return new Promise(resolve => {
-    sheet.tables.reduce(
-      (chain, table) => chain.then(() => loopTable(connStrings, table)),
-      Promise.resolve()
-    ).then(() => {
-      if (log) console.log('resolve sheet: ' + sheet.name);
-      resolve(sheet);
-    });
-  });
-};
+  let db;
+  let insertTable;
+  let querySqlite;
+  const throwErr = err => { if (err) throw new Error(err); };
+  if (sqlitePresent) {
+    db = new sqlite3.Database(':memory:');
 
-module.exports = function() {
+    insertTable = (name, table) => new Promise(resolve => {
+      let columns = [];
+      if (table.columns) columns = table.columns.map(c => c.name);
+      if (!table.columns && table.length) columns = Object.keys(table[0]);
 
-    const executeReportQueries = (report, dbo) => {
-      return new Promise(resolve => {
+      if (!columns.length) { resolve(); return; }
+      // console.log('inserting table with columns:', columns);
 
-        const dsQuery = [{
-          "$sort": {
-            "name": 1
-          }
-        }];
+      const createStmt = `CREATE TABLE '${name}' ("${columns.join('", "')}");`;
+      const insertTmp = `INSERT INTO '${name}' VALUES (${'?,'.repeat(columns.length - 1)}?);`;
 
-        dbo.collection('dataSources').aggregate(dsQuery).toArray((err, connStrings) => {
-          // user reduce to loop through the sheets and wait for promise before next
-          report.sheets.reduce(
-              (chain, sheet) => chain.then(() => loopSheet(connStrings, sheet)),
-              Promise.resolve()
-            )
-            .then(() => resolve(report));
-        });
-
+      db.serialize(() => {
+        db.run(createStmt, throwErr);
+        const stmt = db.prepare(insertTmp, throwErr);
+        table.forEach(row => stmt.run(Object.values(row), throwErr));
+        stmt.finalize(resolve);
       });
-    };
+    });
 
-  return executeReportQueries;
+    querySqlite = query => new Promise((resolve, reject) => {
+      db.all(query, (err, results) => {
+        if (err) reject(err);
+        resolve(results);
+      });
+    });
+  }
+
+  // Execute data sources ////////////////////////////////////////////////////////////////////
+  await report.dataSources.reduce(async (prevPromise, ds) => {
+    // console.log('next reduce');
+    await prevPromise;
+    // console.log({ name: ds.name });
+
+    // if sqlite
+    if (ds.type === 'Query' && connStrings[ds.connectionId].connString === 'sqlite') {
+      const results = await querySqlite(ds.value);
+      ds.data = results;
+      ds.connFriendlyName = connStrings[ds.connectionId].friendlyName;
+      // console.log('about to insertTable');
+      await insertTable(ds.name, results);
+      // console.log('done insertingTable');
+      return;
+    }
+
+    // if resource
+    if (ds.type === 'Resource') {
+      const query = { _id: ObjectId(ds.value) };
+
+      const options = {
+        $project: {
+          data: 1,
+        },
+      };
+
+      const { data } = await dbo.collection('resources').findOne(query, options);
+      ds.data = data;
+      ds.connFriendlyName = 'Stored Resource';
+      return;
+    }
+
+    const odbcConn = await odbc.connect(connStrings[ds.connectionId].connString);
+    const results = await odbcConn.query(ds.value);
+    await odbcConn.close();
+    ds.data = results;
+    ds.connFriendlyName = connStrings[ds.connectionId].friendlyName;
+    if (sqlitePresent) await insertTable(ds.name, results);
+  }, Promise.resolve());
+
+  if (db) db.close();
+
+  // Format for SimpleReport /////////////////////////////////////////////////////////////////
+  console.log({
+    'report.dynamicReportName': report.dynamicReportName,
+    'report.dataSourceId': report.dataSourceId,
+  });
+  if (report.dynamicReportName && report.dataSourceId) {
+    const reportNameData = report.dataSources.find(ds => ds.id === report.dataSourceId).data;
+    console.log({ reportNameData });
+    console.log({ 'reportNameData.length': reportNameData.length });
+    console.log(Object.values(reportNameData[0])[0]);
+    // eslint-disable-next-line prefer-destructuring
+    if (reportNameData.length) report.name = Object.values(reportNameData[0])[0];
+  }
+  report.sheets = report.sheets.map(s => {
+    if (s.type === 'Grouping') {
+      return ({
+        ...s,
+        data: report.dataSources.find(ds => ds.id === s.dataSourceId).data,
+        connFriendlyName: report.dataSources.find(ds => ds.id === s.dataSourceId).connFriendlyName,
+      });
+    }
+    return ({
+      ...s,
+      tables: Array.isArray(s.tables) ?
+        s.tables.map(t => ({
+          ...t,
+          data: report.dataSources.find(ds => ds.id === t.dataSourceId).data,
+          connFriendlyName: report.dataSources
+            .find(ds => ds.id === t.dataSourceId).connFriendlyName,
+        })) :
+        [],
+    });
+  });
+
+  return report;
 };
+
+module.exports = executeReportQueries;

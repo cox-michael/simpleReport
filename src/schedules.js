@@ -15,16 +15,16 @@ import { SessionContext } from "./session";
 
 const styles = theme => ({
 	button: {
-		marginRight: theme.spacing.unit,
-		marginBottom: theme.spacing.unit,
-		marginLeft: theme.spacing.unit,
+		marginRight: theme.spacing(1),
+		marginBottom: theme.spacing(1),
+		marginLeft: theme.spacing(1),
 	},
 	paper: {
-		marginBottom: theme.spacing.unit * 4,
+		marginBottom: theme.spacing(1) * 4,
 		display: 'flex',
 		flexDirection: 'column',
 		alignItems: 'left',
-		padding: `${theme.spacing.unit * 2}px ${theme.spacing.unit * 3}px ${theme.spacing.unit * 3}px`,
+		padding: `${theme.spacing(1) * 2}px ${theme.spacing(1) * 3}px ${theme.spacing(1) * 3}px`,
 	},
 });
 

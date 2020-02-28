@@ -81,9 +81,9 @@ const styles = theme => ({
 			easing: theme.transitions.easing.sharp,
 			duration: theme.transitions.duration.leavingScreen,
 		}),
-		width: theme.spacing.unit * 7,
+		width: theme.spacing(1) * 7,
 		[theme.breakpoints.up('sm')]: {
-			width: theme.spacing.unit * 9,
+			width: theme.spacing(1) * 9,
 		},
 	},
 	toolbar: {
@@ -95,17 +95,17 @@ const styles = theme => ({
 	},
 	content: {
 		flexGrow: 1,
-		padding: theme.spacing.unit * 3,
+		padding: theme.spacing(1) * 3,
 	},
 	leftIcon: {
-		marginRight: theme.spacing.unit,
+		marginRight: theme.spacing(1),
 	},
 	iconSmall: {
 		fontSize: 20,
 	},
 	displayName: {
 		textAlign: "right",
-		paddingRight: theme.spacing.unit * 2,
+		paddingRight: theme.spacing(1) * 2,
 	},
 });
 

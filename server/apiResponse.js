@@ -4,12 +4,15 @@ module.exports = () => (req, res, next) => {
   res.success = success => { res._success = success; return res; };
   res.messages = messages => { res._messages = messages; return res; };
 
-  res.apiRes = (data = {}) => res.json({
-    isLoggedIn: req.session.isLoggedIn,
-    success: res._success,
-    messages: res._messages,
-    data,
-  });
+  res.apiRes = (data = {}) => {
+    if (res.headersSent) return;
+    res.json({
+      isLoggedIn: req.session.isLoggedIn,
+      success: res._success,
+      messages: res._messages,
+      data,
+    });
+  };
 
   next();
 };

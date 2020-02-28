@@ -1,33 +1,18 @@
 const simpleReport = require('simplereport.js');
-const apiResponse = require('./../apiResponse.js')();
-const executeReportQueries = require('./../executeReportQueries.js')();
+const executeReportQueries = require('./../executeReportQueries.js');
+const applyTheme = require('./../applyTheme.js');
+const reportSchema = require('../schemas/reportOrDef')(false);
 
-module.exports = function() {
-  const module = {};
-  module.permissionLevel = 2;
-
-  module.fn = (req, res) => {
-
-    executeReportQueries(req.body.report, req.app.dbo)
-      .then(report => {
-        simpleReport.generate(report, true)
-          .then((buffer) => {
-
-            res.json({
-              isLoggedIn: req.session.isLoggedIn,
-              success: true,
-              messages: [],
-              buffer: JSON.stringify(buffer),
-            });
-
-          })
-          .catch((err) => {
-            console.log(err);
-            apiResponse({}, false, [err]);
-          });
-      });
-
-  };
-
-  return module;
-};
+module.exports = app => app.post(app.routeFromName(__filename), async (req, res) => {
+  try {
+    const definition = await reportSchema.validateAsync(req.body);
+    let report = await executeReportQueries(definition, req.app.dbo);
+    if (report.themeId) report = await applyTheme(report, req.app.dbo);
+    const buffer = await simpleReport.generate(report, true);
+    res.apiRes({ filename: report.name, buffer: JSON.stringify(buffer) });
+    // res.apiRes({ report });
+  } catch (err) {
+    console.error(err);
+    res.status(500).success(false).messages([err.message]).apiRes([]);
+  }
+});

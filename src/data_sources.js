@@ -21,10 +21,10 @@ import InputLabel from '@material-ui/core/InputLabel';
 
 const styles = theme => ({
   root: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing(1),
   },
 	leftIcon: {
-		marginRight: theme.spacing.unit,
+		marginRight: theme.spacing(1),
 	},
 	iconSmall: {
 		fontSize: 20,
