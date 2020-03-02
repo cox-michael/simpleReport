@@ -136,40 +136,44 @@ app.all('/api/:handle', (req, res) => {
 // AUTHENTICATION ##############################################################
 // ##############################################################################
 
-const processLogin = require('./server/processLogin.js')();
+const processLogin = require('./server/processLogin.js');
 
 app.post('/login', async (req, res) => {
-  req.session.realUn = req.body.username;
-  req.session.superpower = false;
+  try {
+    req.session.realUn = req.body.username;
+    req.session.superpower = false;
 
-  await processLogin(req);
+    await processLogin(req);
 
-  req.session.realUserid = session.userid;
-  req.session.save();
+    req.session.realUserid = session.userid;
+    req.session.save();
 
-  const result = await app.dbo.collection('users').findOne(
-    {
+    const result = await app.dbo.collection('users').findOne(
+      {
+        username: req.session.un,
+      }, {
+        ldap: 1,
+        permissions: 1,
+        preferences: 1,
+      },
+    );
+
+    req.session.userid = result._id;
+    req.session.ldap = result.ldap;
+    req.session.permissions = result.permissions;
+    req.session.preferences = result.preferences ? result.preferences : {};
+
+    res.json({
       username: req.session.un,
-    }, {
-      ldap: 1,
-      permissions: 1,
-      preferences: 1,
-    },
-  );
-
-  req.session.userid = result._id;
-  req.session.ldap = result.ldap;
-  req.session.permissions = result.permissions;
-  req.session.preferences = result.preferences ? result.preferences : {};
-
-  res.json({
-    username: req.session.un,
-    isLoggedIn: req.session.isLoggedIn,
-    displayName: req.session.ldap.displayName,
-    userid: req.session.userid,
-    permissions: req.session.permissions,
-    preferences: req.session.preferences,
-  });
+      isLoggedIn: req.session.isLoggedIn,
+      displayName: req.session.ldap.displayName,
+      userid: req.session.userid,
+      permissions: req.session.permissions,
+      preferences: req.session.preferences,
+    });
+  } catch (err) {
+    res.status(500).success(false).messages([err.message]).apiRes([]);
+  }
 });
 
 app.get('/logout', (req, res) => {

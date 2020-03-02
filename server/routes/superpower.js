@@ -1,4 +1,4 @@
-const processLogin = require('./../processLogin.js')();
+const processLogin = require('./../processLogin.js');
 
 module.exports = app => app.post(app.routeFromName(__filename), (req, res) => {
   const perms = { scope: 'sitewide', permission: 'Superpower' };
