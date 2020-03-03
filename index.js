@@ -44,7 +44,7 @@ dboPromise.then(dbo => {
 });
 
 const fileStoreOptions = {};
-app.use(session({
+const expressSession = session({
   name: process.env.NODE_ENV, // ensure your environments don't share cookies
   secret: 'try',
   store: new FileStore(fileStoreOptions),
@@ -55,7 +55,8 @@ app.use(session({
     maxAge: (90 * 86400 * 1000),
   },
   // expires: new Date(Date.now() + (90 * 86400 * 1000))
-}));
+});
+app.use(expressSession);
 app.use(express.static('static'));
 
 // const apiRouter = express.Router();
@@ -93,8 +94,9 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(`${__dirname}/dist/index.html`));
 });
 
-app.get('/dist/main.js', (req, res) => {
-  res.sendFile(path.join(`${__dirname}/dist/main.js`));
+app.get('*/dist/:js', (req, res) => {
+  const { js } = req.params;
+  res.sendFile(path.join(`${__dirname}/dist/${js}`));
 });
 
 app.get('/favicon.ico', (req, res) => {
@@ -192,7 +194,16 @@ app.get('/loggedIn', (req, res) => {
     }, (err, result) => {
       if (err) { console.error(err); return; }
 
-      // console.log({ permissions: result.permissions });
+      if (!result) {
+        res.json({
+          isLoggedIn: false,
+          displayName: '',
+          userid: '',
+          permissions: {},
+          preferences: {},
+        });
+        return;
+      }
 
       req.session.userid = result._id;
       req.session.ldap = result.ldap;
@@ -215,9 +226,6 @@ app.get('/loggedIn', (req, res) => {
 
   res.json({ isLoggedIn: req.session.isLoggedIn });
 });
-
-// TODO: fix this. It's not working.
-// Route.post() requires a callback function but got a [object Object]
 
 // WRAP UP #####################################################################
 
