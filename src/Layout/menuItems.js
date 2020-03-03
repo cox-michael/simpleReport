@@ -18,7 +18,7 @@ const EditDefinition = lazy(() => import('../EditDefinition'));
 // const Branch = lazy(() => import('../Branch'));
 // const Configuration = lazy(() => import('../Configuration'));
 
-const getMenuItems = loginState => {
+const getMenuItems = ({ permissions: perms }) => {
   const menuItems = [
     {
       path: process.env.API_URL,
@@ -57,7 +57,6 @@ const getMenuItems = loginState => {
     },
   ];
 
-  const perms = loginState.permissions;
   // if (perms.sitewide && perms.sitewide.includes('Create/Edit/Delete Branches')) {
   //   menuItems.push({
   //     path: `${process.env.API_URL}config`,

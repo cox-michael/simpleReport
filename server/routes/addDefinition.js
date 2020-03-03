@@ -1,6 +1,6 @@
 const { ObjectId } = require('mongodb');
 const defineJobProcessors = require('../agenda/jobs/createReport');
-const defSchema = require('../schemas/reportOrDef')(true);
+const defSchema = require('../schemas/reportOrDef')(false);
 
 module.exports = app => app.post(app.routeFromName(__filename), async (req, res) => {
   try {
