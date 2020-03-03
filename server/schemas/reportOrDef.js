@@ -103,6 +103,7 @@ module.exports = includeData => Joi.object().keys({
         Joi.string(),
         Joi.number(),
         Joi.date(),
+        Joi.object().valid(null),
       )),
     ).strip(!includeData),
     columnNames: Joi.array().items(Joi.string()),
