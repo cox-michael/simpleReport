@@ -4,7 +4,6 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { Link, useHistory } from 'react-router-dom';
 import {
   Button,
-  Paper,
   Tooltip,
   Typography,
 } from '@material-ui/core/';
@@ -65,7 +64,8 @@ const useStyles = makeStyles(theme => ({
 const Definitions = props => {
   const classes = useStyles();
   const theme = useTheme();
-  const { match, filter } = props;
+  // const { match, filter } = props;
+  const { match } = props;
   const { openReport, loginState } = useContext(SessionContext);
   const history = useHistory();
   const [reports, setDefs] = useState([]);
@@ -157,28 +157,26 @@ const Definitions = props => {
     // detailPanelColumnAlignment: 'right',
   };
 
-  if (!reports.length) {
-    return (
-      <Paper className={classes.paper}>
-        <Typography>
-          {`You have not ${filter} `}
-          {filter === 'starred' ? (
-            <span><Star color="primary" className={classes.icon} /></span>
-          ) : (
-            <span>
-              <Notifications color="primary" className={classes.icon} />
-              {' to '}
-            </span>
-          )}
-          {' any reports yet. Go back to '}
-          <Link to={process.env.API_URL}>all reports</Link>
-          {' to add some.'}
-        </Typography>
-      </Paper>
-    );
-  }
-
-  console.log({ selected });
+  // if (!reports.length) {
+  //   return (
+  //     <Paper className={classes.paper}>
+  //       <Typography>
+  //         {`You have not ${filter} `}
+  //         {filter === 'starred' ? (
+  //           <span><Star color="primary" className={classes.icon} /></span>
+  //         ) : (
+  //           <span>
+  //             <Notifications color="primary" className={classes.icon} />
+  //             {' to '}
+  //           </span>
+  //         )}
+  //         {' any reports yet. Go back to '}
+  //         <Link to={process.env.API_URL}>all reports</Link>
+  //         {' to add some.'}
+  //       </Typography>
+  //     </Paper>
+  //   );
+  // }
 
   return (
     <Row>
@@ -186,13 +184,6 @@ const Definitions = props => {
 
       <Row justifyContent="center" style={{ width: '100%' }}>
         <>
-          { !reports.length && (
-            <Paper className={classes.paper}>
-              <Typography>
-                It looks like you do not have access to any reports yet.
-              </Typography>
-            </Paper>
-          )}
           { (
             !!loginState.permissions &&
             !!loginState.permissions.sitewide &&
@@ -243,11 +234,11 @@ const Definitions = props => {
 Definitions.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   match: PropTypes.object.isRequired,
-  filter: PropTypes.string,
+  // filter: PropTypes.string,
 };
 
-Definitions.defaultProps = {
-  filter: null,
-};
+// Definitions.defaultProps = {
+//   filter: null,
+// };
 
 export default Definitions;
