@@ -97,7 +97,14 @@ module.exports = app => app.post(app.routeFromName(__filename), async (req, res)
     conn2 = await odbc.connect(connString);
     // console.log('connected');
     const results = await conn2.query(query);
-    res.apiRes(results);
+
+    // This is to fix this error: TypeError: Do not know how to serialize a BigInt
+    const cleanRes = JSON.parse(JSON.stringify(
+      results, (key, value) => (typeof value === 'bigint' ? Number(value) : value),
+      // results, (key, value) => (typeof value === 'bigint' ? value.toString() : value),
+    ));
+
+    res.apiRes(cleanRes);
     // conn2.close();
   } catch (err) {
     console.error(err);
