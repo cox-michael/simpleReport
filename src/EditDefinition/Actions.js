@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@material-ui/icons';
 import { useHistory } from 'react-router-dom';
 import { useFetch } from '../hooks';
+import { SessionContext } from '../Session';
 
 const useStyles = makeStyles(theme => ({
   leftSmallIcon: {
@@ -46,6 +47,7 @@ const Actions = props => {
   const classes = useStyles();
   const { definition } = props;
   const history = useHistory();
+  const { openSnack } = useContext(SessionContext);
 
   const downloadFile = data => {
     const buf = Buffer.from(JSON.parse(data.buffer).data);
@@ -65,28 +67,27 @@ const Actions = props => {
   const [runTestwsd, testingwsd] = useFetch('runTestWithStoredData', downloadFile);
 
   const runTwsd = () => {
+    const err = definition.sheets.some(s => s.type !== 'Grouping' && (!s.tables || !s.tables.length));
+    if (err) { openSnack('Each sheet must have a table', 'error'); return; }
+
     runTestwsd({
-      report: {
-        ...definition,
-        // eslint-disable-next-line react/prop-types
-        sheets: definition.sheets.map(s => {
-          if (s.type === 'Grouping') {
-            console.log(s.type);
-            return ({
-              ...s,
-              data: definition.dataSources.find(ds => ds.id === s.dataSourceId).data,
-            });
-          }
-          console.log(s.type);
+      ...definition,
+      // eslint-disable-next-line react/prop-types
+      sheets: definition.sheets.map(s => {
+        if (s.type === 'Grouping') {
           return ({
             ...s,
-            tables: s.tables.map(t => ({
-              ...t,
-              data: definition.dataSources.find(ds => ds.id === t.dataSourceId).data,
-            })),
+            data: definition.dataSources.find(ds => ds.id === s.dataSourceId).data,
           });
-        }),
-      },
+        }
+        return ({
+          ...s,
+          tables: s.tables.map(t => ({
+            ...t,
+            data: definition.dataSources.find(ds => ds.id === t.dataSourceId).data,
+          })),
+        });
+      }),
     });
   };
 
@@ -145,6 +146,7 @@ Actions.propTypes = {
       value: PropTypes.string,
       database: PropTypes.string,
     })),
+    sheets: PropTypes.arrayOf(PropTypes.shape()),
   }).isRequired,
 };
 
