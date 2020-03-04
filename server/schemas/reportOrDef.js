@@ -127,9 +127,10 @@ module.exports = includeData => Joi.object().keys({
         Joi.object({
           tableData: Joi.any().strip(),
         }).pattern(/./, Joi.alternatives().try(
-          Joi.string(),
+          Joi.string().allow(''),
           Joi.number(),
           Joi.date(),
+          Joi.object().valid(null),
         )),
       ).strip(!includeData),
     }),
@@ -171,9 +172,10 @@ module.exports = includeData => Joi.object().keys({
           Joi.object({
             tableData: Joi.any().strip(),
           }).pattern(/./, Joi.alternatives().try(
-            Joi.string(),
+            Joi.string().allow(''),
             Joi.number(),
             Joi.date(),
+            Joi.object().valid(null),
           )),
         ).strip(!includeData),
       }).options({ stripUnknown: true })),
