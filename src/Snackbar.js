@@ -78,11 +78,8 @@ Snack.propTypes = {
 };
 
 Snack.defaultProps = {
-  autohide: 6000,
-};
-
-Snack.defaultProps = {
   type: 'info',
+  autohide: 6000,
 };
 
 export default Snack;
