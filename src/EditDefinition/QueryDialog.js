@@ -122,10 +122,16 @@ const QueryDialog = props => {
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
   const [connId, setConnId] = useState('');
 
+  const [mInst, setMInst] = useState(null);
+  const [mEditor, setMEditor] = useState(null);
+
   const setData = d => {
     if (d.length) {
-      dispatch([{ dataSourceIndex }, { name: 'data', value: d }]);
-      dispatch([{ dataSourceIndex }, { name: 'columnNames', value: Object.keys(d[0]) }]);
+      dispatch([
+        { dataSourceIndex },
+        { name: 'data', value: d },
+        { name: 'columnNames', value: Object.keys(d[0]) },
+      ]);
     }
   };
 
@@ -140,8 +146,11 @@ const QueryDialog = props => {
   }, [value, connectionId, queryDialogOpen]);
 
   const handleSave = () => {
-    dispatch([{ dataSourceIndex }, { name: 'value', value: valueGetter.current() }]);
-    dispatch([{ dataSourceIndex }, { name: 'connectionId', value: connId }]);
+    dispatch([
+      { dataSourceIndex },
+      { name: 'value', value: valueGetter.current() },
+      { name: 'connectionId', value: connId },
+    ]);
     setQueryDialogOpen(false);
   };
 
@@ -155,8 +164,12 @@ const QueryDialog = props => {
   };
 
   const runDs = () => {
-    dispatch([{ dataSourceIndex }, { name: 'value', value: valueGetter.current() }]);
-    dispatch([{ dataSourceIndex }, { name: 'connectionId', value: connId }]);
+    dispatch([
+      { dataSourceIndex },
+      { name: 'value', value: valueGetter.current() },
+      { name: 'connectionId', value: connId },
+      { name: 'data', value: [] },
+    ]);
     const conn = connections.find(c => c._id === connId);
     if (conn && conn.name === 'SQLite') {
       // do sqlite stuff
@@ -173,30 +186,46 @@ const QueryDialog = props => {
     runDataSource({ connectionId: connId, query: valueGetter.current() });
   };
 
+  useEffect(() => {
+    if (mEditor && mInst) {
+      mEditor.addAction({
+        id: 'execute-query',
+        label: 'Execute Query',
+        keybindings: [
+          // eslint-disable-next-line no-bitwise
+          mInst.KeyMod.Alt | mInst.KeyCode.KEY_X,
+          // eslint-disable-next-line no-bitwise
+          mInst.KeyMod.CtrlCmd | mInst.KeyCode.Enter,
+        ],
+        run: runDs,
+      });
+    }
+  }, [connId, mEditor, mInst]);
+
   const handleEditorDidMount = (vg, editor) => {
     setIsEditorReady(true);
     valueGetter.current = vg;
 
-    monaco
-      .init()
-      .then(m => {
-        // editor.createContextKey('execute', true);
-        // editor.addCommand(m.KeyMod.CtrlCmd | m.KeyCode.Enter, function() {
-        //     alert('my command is executing!');
-        // }, 'execute')
-        editor.addAction({
-          id: 'execute-query',
-          label: 'Execute Query',
-          keybindings: [
-            // eslint-disable-next-line no-bitwise
-            m.KeyMod.Alt | m.KeyCode.KEY_X,
-            // eslint-disable-next-line no-bitwise
-            m.KeyMod.CtrlCmd | m.KeyCode.Enter,
-          ],
-          run: runDs,
-        });
-      })
-      .catch(err => console.error(err));
+    monaco.init().then(m => {
+      // editor.createContextKey('execute', true);
+      // editor.addCommand(m.KeyMod.CtrlCmd | m.KeyCode.Enter, function() {
+      //     alert('my command is executing!');
+      // }, 'execute')
+      editor.addAction({
+        id: 'execute-query',
+        label: 'Execute Query',
+        keybindings: [
+          // eslint-disable-next-line no-bitwise
+          m.KeyMod.Alt | m.KeyCode.KEY_X,
+          // eslint-disable-next-line no-bitwise
+          m.KeyMod.CtrlCmd | m.KeyCode.Enter,
+        ],
+        run: runDs,
+      });
+
+      setMInst(m);
+      setMEditor(editor);
+    });
   };
 
   const theme = createMuiTheme({
