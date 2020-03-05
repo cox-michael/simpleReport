@@ -1,64 +1,57 @@
-module.exports = (definition, [nav, updated]) => {
-  console.log('reducer', { nav, updated });
+module.exports = (definition, [nav, ...updates]) => {
+  if (process.env.NODE_ENV !== 'production') console.log('reducer', { nav, updates });
 
-  const updateLevelZero = ({ name, value }) => ({ ...definition, [name]: value });
+  const updatedDef = updates.reduce((prevDef, updated, idx) => {
+    if (process.env.NODE_ENV !== 'production') console.log({ ending: idx - 1, prevDef });
 
-  const updateLevelOne = (arrName, index, { name, value }) => {
-    const itemsArr = [...definition[arrName]];
-    itemsArr[index] = { ...itemsArr[index], [name]: value };
-    return updateLevelZero({ name: arrName, value: itemsArr });
-  };
+    const updateLevelZero = ({ name, value }) => ({ ...prevDef, [name]: value });
 
-  // Reorder /////////////////////////////////////////////////////////////////////////////////
-  if (nav.reorder && nav.sheetIndex !== undefined) {
-    const { oldIndex, newIndex } = updated;
-    const tables = [...definition.sheets[nav.sheetIndex].tables];
-    tables.splice(newIndex, 0, tables.splice(oldIndex, 1)[0]);
-    return updateLevelOne('sheets', nav.sheetIndex, { name: 'tables', value: tables });
-  }
+    const updateLevelOne = (arrName, index, { name, value }) => {
+      const itemsArr = [...prevDef[arrName]];
+      itemsArr[index] = { ...itemsArr[index], [name]: value };
+      return updateLevelZero({ name: arrName, value: itemsArr });
+    };
 
-  if (nav.reorder) {
-    const { oldIndex, newIndex } = updated;
-    definition[nav.reorder].splice(newIndex, 0, definition[nav.reorder].splice(oldIndex, 1)[0]);
-    return { ...definition, [nav.reorder]: [...definition[nav.reorder]] };
-  }
+    if (process.env.NODE_ENV !== 'production') console.log({ starting: idx });
+    // Reorder /////////////////////////////////////////////////////////////////////////////////
+    if (nav.reorder && nav.sheetIndex !== undefined) {
+      const { oldIndex, newIndex } = updated;
+      const tables = [...prevDef.sheets[nav.sheetIndex].tables];
+      tables.splice(newIndex, 0, tables.splice(oldIndex, 1)[0]);
+      return updateLevelOne('sheets', nav.sheetIndex, { name: 'tables', value: tables });
+    }
 
-  // Tables ///////////////////////////////////////////////////////////////////////////////////
-  // if (fn === 'moveTable') {
-  //   const { sheetIndex, tableIndex, direction } = updated;
+    if (nav.reorder) {
+      const { oldIndex, newIndex } = updated;
+      prevDef[nav.reorder].splice(newIndex, 0, prevDef[nav.reorder].splice(oldIndex, 1)[0]);
+      return { ...prevDef, [nav.reorder]: [...prevDef[nav.reorder]] };
+    }
 
-  //   const sheet = { ...sheets[sheetIndex] };
-  //   const { tables } = sheet;
+    // Tables ///////////////////////////////////////////////////////////////////////////////////
+    if (nav.tableIndex !== undefined) {
+      const { name, value } = updated;
+      const tables = [...prevDef.sheets[nav.sheetIndex].tables];
+      tables[nav.tableIndex] = { ...tables[nav.tableIndex], [name]: value };
+      return updateLevelOne('sheets', nav.sheetIndex, { name: 'tables', value: [...tables] });
+    }
 
-  //   const move = direction === 'up' ? -1 : 1;
-  //   tables.splice(tableIndex + move, 0, tables.splice(tableIndex, 1)[0]);
+    // Sheets ///////////////////////////////////////////////////////////////////////////////////
+    if (nav.sheetIndex !== undefined) { return updateLevelOne('sheets', nav.sheetIndex, updated); }
 
-  //   sheet.tables = [...tables];
+    // DataSources /////////////////////////////////////////////////////////////////////////////
+    if (nav.dataSourceIndex !== undefined) { return updateLevelOne('dataSources', nav.dataSourceIndex, updated); }
 
-  //   const updatedSheets = [...sheets];
-  //   updatedSheets[sheetIndex] = sheet;
-  //   return { ...definition, sheets: updatedSheets };
-  // }
+    // Definition //////////////////////////////////////////////////////////////////////////////
+    if (!Object.keys(nav).length) { return updateLevelZero(updated); }
 
-  if (nav.tableIndex !== undefined) {
-    const { name, value } = updated;
-    const tables = [...definition.sheets[nav.sheetIndex].tables];
-    tables[nav.tableIndex] = { ...tables[nav.tableIndex], [name]: value };
-    return updateLevelOne('sheets', nav.sheetIndex, { name: 'tables', value: [...tables] });
-  }
+    // Reset ///////////////////////////////////////////////////////////////////////////////////
+    if (nav.reset) return updated;
 
-  // Sheets ///////////////////////////////////////////////////////////////////////////////////
-  if (nav.sheetIndex !== undefined) return updateLevelOne('sheets', nav.sheetIndex, updated);
+    // Error ///////////////////////////////////////////////////////////////////////////////////
+    return updated;
+  }, definition);
 
-  // DataSources /////////////////////////////////////////////////////////////////////////////
-  if (nav.dataSourceIndex !== undefined) return updateLevelOne('dataSources', nav.dataSourceIndex, updated);
+  if (process.env.NODE_ENV !== 'production') console.log({ updatedDef });
 
-  // Definition //////////////////////////////////////////////////////////////////////////////
-  if (!Object.keys(nav).length) return updateLevelZero(updated);
-
-  // Reset ///////////////////////////////////////////////////////////////////////////////////
-  if (nav.reset) return updated;
-
-  // Error ///////////////////////////////////////////////////////////////////////////////////
-  return definition;
+  return updatedDef;
 };
