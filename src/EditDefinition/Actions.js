@@ -1,45 +1,62 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
+// import {
+//   Backdrop,
+//   // Button,
+//   // CircularProgress,
+// } from '@material-ui/core';
 import {
-  Button,
-  // CircularProgress,
-} from '@material-ui/core';
-import {
-  Save,
   Description,
+  FileCopy,
+  Menu,
+  Save,
 } from '@material-ui/icons';
+import {
+  SpeedDial,
+  SpeedDialAction,
+} from '@material-ui/lab';
 import { useHistory } from 'react-router-dom';
 import { useFetch } from '../hooks';
 import { SessionContext } from '../Session';
 
 const useStyles = makeStyles(theme => ({
-  leftSmallIcon: {
-    marginRight: theme.spacing(1),
-    fontSize: 20,
-  },
-  button: {
-    marginTop: theme.spacing(1),
-    marginLeft: theme.spacing(1),
-  },
+  // leftSmallIcon: {
+  //   marginRight: theme.spacing(1),
+  //   fontSize: 20,
+  // },
+  // button: {
+  //   marginTop: theme.spacing(1),
+  //   marginLeft: theme.spacing(1),
+  // },
   floating: {
     position: 'fixed',
     top: theme.spacing(11),
     right: theme.spacing(3),
     zIndex: 100,
   },
-  progress: {
-    // color: green[500],
-    position: 'relative',
-    top: -78, // 15 without <br />
-    left: 43, // -60 without <br />
-    zIndex: 10000,
-  },
-  progress2: {
-    position: 'relative',
-    top: -34, // 15 without <br />
-    left: 43, // -60 without <br />
-    zIndex: 10000,
+  // progress: {
+  //   // color: green[500],
+  //   position: 'relative',
+  //   top: -78, // 15 without <br />
+  //   left: 43, // -60 without <br />
+  //   zIndex: 10000,
+  // },
+  // progress2: {
+  //   position: 'relative',
+  //   top: -34, // 15 without <br />
+  //   left: 43, // -60 without <br />
+  //   zIndex: 10000,
+  // },
+  tooltip: {
+    // background: '#333333',
+    // color: 'white',
+    whiteSpace: 'nowrap',
+    // '&.MuiTooltip-tooltip': {
+    //   background: '#333333',
+    //   color: 'white',
+    //   whiteSpace: 'nowrap',
+    // },
   },
 }));
 
@@ -48,6 +65,8 @@ const Actions = props => {
   const { definition } = props;
   const history = useHistory();
   const { openSnack } = useContext(SessionContext);
+
+  const [open, setOpen] = useState(false);
 
   const downloadFile = data => {
     const buf = Buffer.from(JSON.parse(data.buffer).data);
@@ -62,9 +81,10 @@ const Actions = props => {
     a.remove();
   };
 
-  const [save, saving] = useFetch('addDefinition', () => history.push('/'));
-  const [runTest, testing] = useFetch('runTest', downloadFile);
-  const [runTestwsd, testingwsd] = useFetch('runTestWithStoredData', downloadFile);
+  const [save] = useFetch('addDefinition');
+  const [saveAndClose] = useFetch('addDefinition', () => history.push('/'));
+  const [runTest] = useFetch('runTest', downloadFile);
+  const [runTestwsd] = useFetch('runTestWithStoredData', downloadFile);
 
   const runTwsd = () => {
     const err = definition.sheets.some(s => s.type !== 'Grouping' && (!s.tables || !s.tables.length));
@@ -91,40 +111,49 @@ const Actions = props => {
     });
   };
 
+  const saveAsCopy = () => {
+    const copy = { ...definition };
+    delete copy._id;
+    saveAndClose(copy);
+    setOpen(false);
+  };
+
+  const actions = [
+    { name: 'Save', icon: <Save />, fn: () => { save(definition); setOpen(false); } },
+    { name: 'Save & Close', icon: <Save />, fn: () => { saveAndClose(definition); setOpen(false); } },
+    { name: 'Test', icon: <Description />, fn: () => { runTest(definition); setOpen(false); } },
+    { name: 'Test with Stored Data', icon: <Description />, fn: () => { runTwsd(); setOpen(false); } },
+  ];
+
+  if (definition._id) actions.splice(2, 0, { name: 'Save as Copy', icon: <FileCopy />, fn: saveAsCopy });
+
   return (
     <div className={classes.floating}>
-      <Button
-        variant="contained"
-        color="primary"
-        disabled={saving}
-        className={classes.button}
-        onClick={() => save(definition)}
+      {/* <Backdrop open={open} /> */}
+      <SpeedDial
+        ariaLabel=""
+        ButtonProps={{ size: 'small' }}
+        icon={<Menu />}
+        direction="down"
+        onBlur={() => setOpen(false)}
+        onClose={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        open={open}
+        className={classes.speedDial}
       >
-        <Save className={classes.leftSmallIcon} />
-        Save
-      </Button>
-      <br />
-      <Button
-        variant="contained"
-        color="secondary"
-        disabled={testing}
-        className={classes.button}
-        onClick={() => runTest(definition)}
-      >
-        <Description className={classes.leftSmallIcon} />
-        Test
-      </Button>
-      <br />
-      <Button
-        variant="contained"
-        color="secondary"
-        disabled={testingwsd}
-        className={classes.button}
-        onClick={runTwsd}
-      >
-        <Description className={classes.leftSmallIcon} />
-        Test with Stored Data
-      </Button>
+        {actions.map(action => (
+          <SpeedDialAction
+            key={action.name}
+            icon={action.icon}
+            tooltipTitle={<span className={classes.tooltip}>{action.name}</span>}
+            tooltipOpen
+            onClick={action.fn}
+          />
+        ))}
+
+      </SpeedDial>
       <br />
       {/* {saving && <CircularProgress size={30} className={classes.progress} />} */}
       {/* {testing && <CircularProgress size={30} className={classes.progress2} />} */}
