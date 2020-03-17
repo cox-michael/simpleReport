@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import {
+  Backdrop,
   CircularProgress,
   Typography,
 } from '@material-ui/core';
@@ -23,20 +24,22 @@ const useStyles = makeStyles(() => ({
 const Spinner = props => {
   const classes = useStyles();
   const {
-    size, centerScreen, center: centerProp, message,
+    size, centerScreen, center: centerProp, message, backdrop,
   } = props;
 
   const center = message ? true : centerProp;
 
   return (
-    <div className={classes[center && 'center']}>
-      <div className={classes[centerScreen && 'centerScreen']}>
-        <CircularProgress disableShrink size={size} />
-        {message && (
-          <div><Typography variant="caption" color="textSecondary">{message}</Typography></div>
-        )}
+    <Backdrop open={backdrop}>
+      <div className={classes[center && 'center']}>
+        <div className={classes[centerScreen && 'centerScreen']}>
+          <CircularProgress disableShrink size={size} />
+          {message && (
+            <div><Typography variant="caption" color="textSecondary">{message}</Typography></div>
+          )}
+        </div>
       </div>
-    </div>
+    </Backdrop>
   );
 };
 
@@ -45,6 +48,7 @@ Spinner.propTypes = {
   centerScreen: PropTypes.bool,
   center: PropTypes.bool,
   message: PropTypes.string,
+  backdrop: PropTypes.bool,
 };
 
 Spinner.defaultProps = {
@@ -52,6 +56,7 @@ Spinner.defaultProps = {
   centerScreen: false,
   center: false,
   message: '',
+  backdrop: false,
 };
 
 export default Spinner;
