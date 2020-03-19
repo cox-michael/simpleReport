@@ -7,7 +7,7 @@ import {
   Typography,
 } from '@material-ui/core';
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles(theme => ({
   centerScreen: {
     position: 'absolute',
     top: '50%',
@@ -19,6 +19,9 @@ const useStyles = makeStyles(() => ({
     width: '100%',
     textAlign: 'center',
   },
+  backdrop: {
+    zIndex: theme.zIndex.drawer + 1,
+  },
 }));
 
 const Spinner = props => {
@@ -29,17 +32,30 @@ const Spinner = props => {
 
   const center = message ? true : centerProp;
 
-  return (
-    <Backdrop open={backdrop}>
-      <div className={classes[center && 'center']}>
-        <div className={classes[centerScreen && 'centerScreen']}>
-          <CircularProgress disableShrink size={size} />
-          {message && (
-            <div><Typography variant="caption" color="textSecondary">{message}</Typography></div>
-          )}
+  if (backdrop) {
+    return (
+      <Backdrop open={backdrop} className={classes.backdrop}>
+        <div className={classes[center && 'center']}>
+          <div className={classes[centerScreen && 'centerScreen']}>
+            <CircularProgress disableShrink size={size} />
+            {message && (
+              <div><Typography variant="caption" color="textSecondary">{message}</Typography></div>
+            )}
+          </div>
         </div>
+      </Backdrop>
+    );
+  }
+
+  return (
+    <div className={classes[center && 'center']}>
+      <div className={classes[centerScreen && 'centerScreen']}>
+        <CircularProgress disableShrink size={size} />
+        {message && (
+          <div><Typography variant="caption" color="textSecondary">{message}</Typography></div>
+        )}
       </div>
-    </Backdrop>
+    </div>
   );
 };
 
