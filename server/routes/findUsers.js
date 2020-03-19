@@ -49,9 +49,11 @@ module.exports = app => app.post(app.routeFromName(__filename), async (req, res)
   const schema = Joi.string().regex(/^[\w\-\s.]+$/).min(2).required();
 
   try {
-    const validated = await schema.validate(req.body.query);
-    console.log({ validated, query: req.body.query });
-    findUsers(validated.value).then(users => res.apiRes(users));
+    const validated = await schema.validateAsync(req.body.query);
+
+    const users = await findUsers(validated);
+
+    res.apiRes(users);
   } catch (err) {
     console.log(err);
     res.status(400).success(false).messages(['Invalid query']).apiRes([]);
