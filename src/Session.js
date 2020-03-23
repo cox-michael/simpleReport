@@ -148,7 +148,7 @@ const SessionProvider = props => {
     foldersLoading,
   };
 
-  console.log({ context });
+  if (process.env.NODE_ENV !== 'production') console.log({ context });
 
   return (
     <SessionContext.Provider value={context}>

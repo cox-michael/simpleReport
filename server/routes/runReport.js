@@ -15,7 +15,7 @@ module.exports = app => app.post(app.routeFromName(__filename), async (req, res)
     let report = await executeReportQueries(definition, app.dbo);
     if (report.themeId) report = await applyTheme(report, app.dbo);
     const buffer = await simpleReport.generate(report, true);
-    res.apiRes({ filename: report.name, buffer: JSON.stringify(buffer) });
+    res.apiRes({ filename: report.filename, buffer: JSON.stringify(buffer) });
     // res.apiRes({ buffer: JSON.stringify(buffer) });
     // res.apiRes({ report });
   } catch (err) {

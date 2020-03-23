@@ -63,15 +63,34 @@ const nameFormat = Joi.object({
   }),
 }).options({ stripUnknown: true });
 
+// eslint-disable-next-line no-useless-escape
+const name = Joi.string().pattern(/^[\w\s\[\]\{\}\.()`~!@#$%^&\-+=;',]{1,255}$/).required();
+
 module.exports = includeData => Joi.object().keys({
   _id: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
-  // eslint-disable-next-line no-useless-escape
-  name: Joi.string().pattern(/^[\w\s\[\]\{\}\.()`~!@#$%^&\-+=;',]{1,255}$/).required(),
-  dynamicReportName: Joi.boolean().default(false),
-  dataSourceId: Joi.when('dynamicReportName', {
-    is: true,
+  name,
+  // dynamicReportName: Joi.boolean().default(false),
+  reportNameType: Joi.string().valid('Same as Definition', 'Static', 'Dynamic').required(),
+  reportNameDataSourceId: Joi.when('reportNameType', {
+    is: 'Dynamic',
     then: Joi.number().required(),
-    otherwise: Joi.strip(true),
+    otherwise: Joi.strip(),
+  }),
+  reportName: Joi.when('reportNameType', {
+    is: 'Static',
+    then: name,
+    otherwise: Joi.strip(),
+  }),
+  reportFilenameType: Joi.string().valid('Same as Definition', 'Same as Report', 'Static', 'Dynamic').required(),
+  filenameDataSourceId: Joi.when('reportFilenameType', {
+    is: 'Dynamic',
+    then: Joi.number().required(),
+    otherwise: Joi.strip(),
+  }),
+  reportFilename: Joi.when('reportFilenameType', {
+    is: 'Static',
+    then: name,
+    otherwise: Joi.strip(),
   }),
   nameFormat,
   description: Joi.string().allow(''),

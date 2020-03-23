@@ -69,14 +69,14 @@ module.exports = async (jobName, app) => {
         // Send Email
         if (data) {
           // console.log({ data });
-          const attachments = [{ filename: `${report.name}.xlsx`, content: buffer }];
+          const attachments = [{ filename: `${report.filename}.xlsx`, content: buffer }];
           sendEmail(data, report.name, 'Please see attached report', attachments);
         }
 
         // Insert into db
         await app.dbo.collection('reports').insertOne({
           definitionId: ObjectId(def._id),
-          filename: `${report.name}.xlsx`,
+          filename: `${report.filename}.xlsx`,
           file: buffer, // JSON.stringify(buffer)
           downloads: [],
         });

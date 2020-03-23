@@ -87,28 +87,32 @@ const Actions = props => {
   const [runTestwsd] = useFetch('runTestWithStoredData', downloadFile);
 
   const runTwsd = () => {
-    const err = definition.sheets.some(s => s.type !== 'Grouping' && (!s.tables || !s.tables.length));
-    if (err) { openSnack('Each sheet must have a table', 'error'); return; }
+    try {
+      const err = definition.sheets.some(s => s.type !== 'Grouping' && (!s.tables || !s.tables.length));
+      if (err) { openSnack('Each sheet must have a table', 'error'); return; }
 
-    runTestwsd({
-      ...definition,
-      // eslint-disable-next-line react/prop-types
-      sheets: definition.sheets.map(s => {
-        if (s.type === 'Grouping') {
+      runTestwsd({
+        ...definition,
+        // eslint-disable-next-line react/prop-types
+        sheets: definition.sheets.map(s => {
+          if (s.type === 'Grouping') {
+            return ({
+              ...s,
+              data: definition.dataSources.find(ds => ds.id === s.dataSourceId).data,
+            });
+          }
           return ({
             ...s,
-            data: definition.dataSources.find(ds => ds.id === s.dataSourceId).data,
+            tables: s.tables.map(t => ({
+              ...t,
+              data: definition.dataSources.find(ds => ds.id === t.dataSourceId).data,
+            })),
           });
-        }
-        return ({
-          ...s,
-          tables: s.tables.map(t => ({
-            ...t,
-            data: definition.dataSources.find(ds => ds.id === t.dataSourceId).data,
-          })),
-        });
-      }),
-    });
+        }),
+      });
+    } catch (err) {
+      openSnack(err.message, 'error');
+    }
   };
 
   const saveAsCopy = () => {
@@ -165,6 +169,10 @@ Actions.propTypes = {
   definition: PropTypes.shape({
     _id: PropTypes.string,
     name: PropTypes.string,
+    reportNameType: PropTypes.oneOf(['Same as Definition', 'Static', 'Dynamic']),
+    reportName: PropTypes.string,
+    reportFilenameType: PropTypes.oneOf(['Same as Definition', 'Same as Report', 'Static', 'Dynamic']),
+    reportFilename: PropTypes.string,
     description: PropTypes.string,
     dept: PropTypes.string,
     requestedBy: PropTypes.string,
@@ -176,6 +184,8 @@ Actions.propTypes = {
       database: PropTypes.string,
     })),
     sheets: PropTypes.arrayOf(PropTypes.shape()),
+    reportNameDataSourceId: PropTypes.number,
+    filenameDataSourceId: PropTypes.number,
   }).isRequired,
 };
 

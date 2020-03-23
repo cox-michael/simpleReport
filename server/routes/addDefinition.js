@@ -17,7 +17,7 @@ module.exports = app => app.post(app.routeFromName(__filename), async (req, res)
       await app.dbo.collection('definitions').insertOne(definition);
       await defineJobProcessors(null, app);
     }
-    res.apiRes();
+    res.messages(['Report definition saved successfully.']).apiRes();
   } catch (err) {
     console.log(err.message);
     res.status(500).success(false).messages([err.message]).apiRes();

@@ -37,6 +37,9 @@ const useStyles = makeStyles(theme => ({
   marginTop: {
     marginTop: theme.spacing(1),
   },
+  marginLeft: {
+    marginLeft: theme.spacing(1),
+  },
 }));
 
 const EditProperties = props => {
@@ -50,8 +53,13 @@ const EditProperties = props => {
     dept,
     requestedBy,
     exceptionsReport,
-    dynamicReportName,
-    dataSourceId,
+    // dynamicReportName,
+    reportNameDataSourceId,
+    reportNameType,
+    reportName,
+    reportFilenameType,
+    reportFilename,
+    filenameDataSourceId,
   } = props;
   const { themes, getThemes, themesLoading } = useContext(SessionContext);
   const dispatch = useContext(DefDispatch);
@@ -91,6 +99,73 @@ const EditProperties = props => {
       <Row alignItems="flex-end">
         <TextField
           name="name"
+          label="Definition Name"
+          value={name}
+          onChange={changeDef}
+          fullWidth
+        />
+      </Row>
+
+      <Row alignItems="flex-end">
+        <FormControl className={`${classes.select} ${classes.marginTop}`}>
+          <InputLabel htmlFor="reportNameType">Report Name Type</InputLabel>
+          <Select
+            value={reportNameType}
+            onChange={changeDef}
+            inputProps={{ name: 'reportNameType' }}
+          >
+            <MenuItem value="Same as Definition">Same as Definition</MenuItem>
+            <MenuItem value="Static">Static</MenuItem>
+            <MenuItem value="Dynamic">
+              {/* <Tooltip
+                title={(
+                  <Typography variant="body2">
+                    Use a data source as the report name.
+                    The first column of the first row of results will be used.
+                  </Typography>
+                )}
+              > */}
+              Dynamic
+              {/* </Tooltip> */}
+            </MenuItem>
+          </Select>
+        </FormControl>
+        {reportNameType === 'Static' && (
+          <TextField
+            name="reportName"
+            label="Report Name"
+            value={reportName}
+            onChange={changeDef}
+            fullWidth
+            className={`${classes.marginLeft} ${classes.marginTop}`}
+          />
+        )}
+        {reportNameType === 'Dynamic' && (
+          <FormControl className={`${classes.select} ${classes.marginLeft} ${classes.marginTop}`}>
+            <InputLabel htmlFor="reportNameDataSourceId">Data Source</InputLabel>
+            <Select
+              value={reportNameDataSourceId}
+              onChange={changeDef}
+              inputProps={{ name: 'reportNameDataSourceId' }}
+            >
+              <MenuItem value=""><em>None</em></MenuItem>
+              {dataSources.map(ds => (
+                <MenuItem key={ds.id} value={ds.id}>
+                  {ds.type === 'Query' ? ds.name : resources.find(r => r._id === ds.value).name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+        <IconButton
+          color="primary"
+          onClick={openFormatDialog}
+        >
+          <ColorLens />
+        </IconButton>
+
+        {/* <TextField
+          name="name"
           label="Report Name"
           value={name}
           onChange={changeDef}
@@ -101,10 +176,64 @@ const EditProperties = props => {
           onClick={openFormatDialog}
         >
           <ColorLens />
-        </IconButton>
+        </IconButton> */}
       </Row>
 
-      <Row className={classes.marginTop} alignItems="flex-end">
+      <Row alignItems="flex-end">
+        <FormControl className={`${classes.select} ${classes.marginTop}`}>
+          <InputLabel htmlFor="reportFilenameType">Report Filename Type</InputLabel>
+          <Select
+            value={reportFilenameType}
+            onChange={changeDef}
+            inputProps={{ name: 'reportFilenameType' }}
+          >
+            <MenuItem value="Same as Definition">Same as Definition</MenuItem>
+            <MenuItem value="Same as Report">Same as Report</MenuItem>
+            <MenuItem value="Static">Static</MenuItem>
+            <MenuItem value="Dynamic">
+              {/* <Tooltip
+                title={(
+                  <Typography variant="body2">
+                    Use a data source as the report name.
+                    The first column of the first row of results will be used.
+                  </Typography>
+                )}
+              > */}
+              Dynamic
+              {/* </Tooltip> */}
+            </MenuItem>
+          </Select>
+        </FormControl>
+        {reportFilenameType === 'Static' && (
+          <TextField
+            name="reportFilename"
+            label="Report Filename"
+            value={reportFilename}
+            onChange={changeDef}
+            fullWidth
+            className={`${classes.marginLeft} ${classes.marginTop}`}
+          />
+        )}
+        {reportFilenameType === 'Dynamic' && (
+          <FormControl className={`${classes.select} ${classes.marginLeft} ${classes.marginTop}`}>
+            <InputLabel htmlFor="filenameDataSourceId">Data Source</InputLabel>
+            <Select
+              value={filenameDataSourceId}
+              onChange={changeDef}
+              inputProps={{ name: 'filenameDataSourceId' }}
+            >
+              <MenuItem value=""><em>None</em></MenuItem>
+              {dataSources.map(ds => (
+                <MenuItem key={ds.id} value={ds.id}>
+                  {ds.type === 'Query' ? ds.name : resources.find(r => r._id === ds.value).name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+      </Row>
+
+      {/* <Row className={classes.marginTop} alignItems="flex-end">
         <Tooltip
           title={(
             <Typography variant="body2">
@@ -133,11 +262,11 @@ const EditProperties = props => {
         </Tooltip>
         {dynamicReportName && (
           <FormControl className={classes.select}>
-            <InputLabel htmlFor="dataSourceId">Data Source</InputLabel>
+            <InputLabel htmlFor="reportNameDataSourceId">Data Source</InputLabel>
             <Select
-              value={dataSourceId}
+              value={reportNameDataSourceId}
               onChange={changeDef}
-              inputProps={{ name: 'dataSourceId' }}
+              inputProps={{ name: 'reportNameDataSourceId' }}
             >
               <MenuItem value=""><em>None</em></MenuItem>
               {dataSources.map(ds => (
@@ -148,7 +277,7 @@ const EditProperties = props => {
             </Select>
           </FormControl>
         )}
-      </Row>
+      </Row> */}
 
       <TextField
         name="description"
@@ -221,27 +350,37 @@ const EditProperties = props => {
 EditProperties.propTypes = {
   _id: PropTypes.string,
   name: PropTypes.string,
+  reportNameType: PropTypes.oneOf(['Same as Definition', 'Static', 'Dynamic']),
+  reportName: PropTypes.string,
+  reportFilenameType: PropTypes.oneOf(['Same as Definition', 'Same as Report', 'Static', 'Dynamic']),
+  reportFilename: PropTypes.string,
   themeId: PropTypes.string,
   nameFormat: PropTypes.shape(),
   description: PropTypes.string,
   dept: PropTypes.string,
   requestedBy: PropTypes.string,
   exceptionsReport: PropTypes.bool,
-  dynamicReportName: PropTypes.bool,
-  dataSourceId: PropTypes.number,
+  // dynamicReportName: PropTypes.bool,
+  reportNameDataSourceId: PropTypes.number,
+  filenameDataSourceId: PropTypes.number,
 };
 
 EditProperties.defaultProps = {
   _id: null,
   name: '',
+  reportNameType: 'Same as Definition',
+  reportName: '',
+  reportFilenameType: 'Same as Definition',
+  reportFilename: '',
   themeId: '',
   nameFormat: {},
   description: '',
   dept: '',
   requestedBy: '',
   exceptionsReport: false,
-  dynamicReportName: false,
-  dataSourceId: null,
+  // dynamicReportName: false,
+  reportNameDataSourceId: null,
+  filenameDataSourceId: null,
 };
 
 export default EditProperties;

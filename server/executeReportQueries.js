@@ -99,18 +99,27 @@ const executeReportQueries = async (report, dbo) => {
   if (db) db.close();
 
   // Format for SimpleReport /////////////////////////////////////////////////////////////////
-  console.log({
-    'report.dynamicReportName': report.dynamicReportName,
-    'report.dataSourceId': report.dataSourceId,
-  });
-  if (report.dynamicReportName && report.dataSourceId) {
-    const reportNameData = report.dataSources.find(ds => ds.id === report.dataSourceId).data;
-    console.log({ reportNameData });
-    console.log({ 'reportNameData.length': reportNameData.length });
-    console.log(Object.values(reportNameData[0])[0]);
+  report.filename = report.name;
+
+  if (report.reportNameType === 'Dynamic' && report.reportNameDataSourceId) {
+    const reportNameData = report.dataSources
+      .find(ds => ds.id === report.reportNameDataSourceId).data;
     // eslint-disable-next-line prefer-destructuring
     if (reportNameData.length) report.name = Object.values(reportNameData[0])[0];
   }
+  if (report.reportNameType === 'Static' && report.reportName) report.name = report.reportName;
+
+  if (report.reportFilenameType === 'Dynamic' && report.filenameDataSourceId) {
+    const filenameData = report.dataSources
+      .find(ds => ds.id === report.filenameDataSourceId).data;
+    // eslint-disable-next-line prefer-destructuring
+    if (filenameData.length) report.filename = Object.values(filenameData[0])[0];
+  }
+  if (report.reportFilenameType === 'Static' && report.reportFilename) {
+    report.filename = report.reportFilename;
+  }
+  if (report.reportFilenameType === 'Same as Report') report.filename = report.name;
+
   report.sheets = report.sheets.map(s => {
     if (s.type === 'Grouping') {
       return ({
