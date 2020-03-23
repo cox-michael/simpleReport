@@ -28,8 +28,7 @@ import {
   Delete,
   OpenInBrowser,
 } from '@material-ui/icons';
-import Column from '../Column';
-import { Row, Spinner } from '../components';
+import { Row, Spinner, Column } from '../components';
 import QueryDialog from './QueryDialog';
 import ResourceDialog from './ResourceDialog';
 import { SessionContext } from '../Session';
