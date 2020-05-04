@@ -86,11 +86,38 @@ module.exports = app => app.get(app.routeFromName(__filename), async (req, res) 
       {
         $lookup: {
           from: 'reports',
-          localField: '_id',
-          foreignField: 'definitionId',
+          let: {
+            definitionId: '$_id',
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    {
+                      $eq: ['$definitionId', '$$definitionId'],
+                    },
+                  ],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+              },
+            },
+          ],
           as: 'lastRun',
         },
       },
+      // {
+      //   $lookup: {
+      //     from: 'reports',
+      //     localField: '_id',
+      //     foreignField: 'definitionId',
+      //     as: 'lastRun',
+      //   },
+      // },
       {
         $addFields: {
           subscribed: {
