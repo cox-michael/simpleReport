@@ -89,7 +89,24 @@ const executeReportQueries = async (report, dbo) => {
     }
 
     const odbcConn = await odbc.connect(connStrings[ds.connectionId].connString);
-    const results = await odbcConn.query(ds.value);
+    let results = await odbcConn.query(ds.value);
+
+    const bigColumns = [];
+    results.columns.forEach(c => { if (c.dataType === -5) bigColumns.push(c.name); }); // bigInt
+
+    if (bigColumns.length) {
+      results = results.map(row => {
+        bigColumns.forEach(c => {
+          if (row[c] > Number.MAX_SAFE_INTEGER) {
+            row[c] = row[c].toString();
+            return;
+          }
+          row[c] = Number(row[c]);
+        });
+        return row;
+      });
+    }
+
     await odbcConn.close();
     ds.data = results;
     ds.connFriendlyName = connStrings[ds.connectionId].friendlyName;
