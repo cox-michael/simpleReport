@@ -8,6 +8,7 @@ module.exports = () => {
       }@${process.env.DB_HOST
       }/admin`, {
         useNewUrlParser: true,
+        useUnifiedTopology: true,
       },
       (err, database) => {
         if (err) throw err;
