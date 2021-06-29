@@ -18,7 +18,11 @@ module.exports = app => app.post(app.routeFromName(__filename), async (req, res)
       const filenameData = report.dataSources
         .find(ds => ds.id === report.filenameDataSourceId).data;
       // eslint-disable-next-line prefer-destructuring
-      if (filenameData.length) report.filename = Object.values(filenameData[0])[0];
+      if (filenameData && filenameData.length) {
+        [report.filename] = Object.values(filenameData[0]);
+        return;
+      }
+      report.filename = 'Filename error';
     }
     if (report.reportFilenameType === 'Static' && report.reportFilename) {
       report.filename = report.reportFilename;
