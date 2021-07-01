@@ -222,6 +222,11 @@ const apiHandler = (req) => {
 
 // GET #########################################################################
 
+// TODO: remove this after full production release to public
+app.get('//*', (req, res) => { // reroute from old domain
+	res.redirect('http://' + process.env.FULL_URL + req.originalUrl.substr(2));
+})
+
 app.get('/', (req, res) => {
 	log(req);
 	res.sendFile(path.join(__dirname + '/dist/index.html'));
@@ -1123,6 +1128,10 @@ app.get('*', (req, res) => {
 // 	log(req);
 // 	res.sendFile(path.join(__dirname + '/dist/index.html'));
 // });
+<<<<<<< HEAD
+=======
+
+>>>>>>> d1e60855a8629dd7751b34c732996fe73989f7e4
 
 // Run app
 app.listen(process.env.PORT, process.env.HOST, () => {
