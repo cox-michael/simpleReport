@@ -2,6 +2,7 @@
   "watch": [
     "server/*",
     "index.js",
+    "app.js",
     ".env"
   ]
 }
