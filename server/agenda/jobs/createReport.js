@@ -9,8 +9,7 @@ const sendEmail = (to, subject, text, attachments) => new Promise(resolve => {
 
   const mailOptions = {
     from: `"${process.env.TITLE}" <${process.env.FROM_EMAIL_ADDRESS}>`,
-    // to: process.env.ADMIN_EMAIL_ADDRESS, // (comma separated)
-    to, // (comma separated)
+    to: process.env.NODE_ENV !== 'production' ? process.env.ADMIN_EMAIL_ADDRESS : to, // (comma separated)
     subject,
     text, // plain text body
     // html, // html body
