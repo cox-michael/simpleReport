@@ -45,7 +45,7 @@
     "react-test-renderer": "^16.13.0",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.0",
@@ -67,7 +67,7 @@
     "ldapjs": "^1.0.2",
     "material-table": "^1.57.2",
     "mongodb": "^3.5.4",
-    "nodemailer": "^6.4.4",
+    "nodemailer": "^6.6.2",
     "odbc": "^2.2.2",
     "prop-types": "^15.7.2",
     "react": "^16.13.0",
