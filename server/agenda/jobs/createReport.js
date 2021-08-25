@@ -38,6 +38,7 @@ module.exports = async (jobName, app) => {
         // Get Definition
         // console.log('get def');
         const def = await app.dbo.collection('definitions').findOne({ _id: ObjectId(_id) });
+        console.log(`Definition Name: ${def.name}`);
         // console.log('got report');
         // Execute Queries
         let report = await executeReportQueries(def, app.dbo);
@@ -87,6 +88,7 @@ module.exports = async (jobName, app) => {
         // await sendNotificationEmail(report, app),
       } catch (err) {
         console.error(err);
+        throw err;
       }
     });
   });
