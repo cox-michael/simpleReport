@@ -1,16 +1,18 @@
 const Agenda = require('agenda');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
+const { ObjectId } = require('mongodb');
 
-const emailError = (subject, text) => new Promise(resolve => {
+const sendEmail = (to, subject, text) => new Promise(resolve => {
   const transporter = nodemailer.createTransport({ sendmail: true });
 
   const mailOptions = {
     from: `"${process.env.TITLE}" <${process.env.FROM_EMAIL_ADDRESS}>`,
-    to: process.env.ADMIN_EMAIL_ADDRESS, // (comma separated)
+    to, // (comma separated)
     subject,
     text, // plain text body
     // html, // html body
+    // attachments,
   };
 
   // console.log({ mailOptions });
@@ -27,6 +29,38 @@ const emailError = (subject, text) => new Promise(resolve => {
 });
 
 module.exports = async app => {
+  const emailError = async (id, error) => {
+    let text = '';
+    if (error.stack) text += `${error.stack} \n\n`;
+    if (
+      error.odbcErrors &&
+      Array.isArray(error.odbcErrors) &&
+      error.odbcErrors.length
+    ) {
+      error.odbcErrors.forEach((e, index) => {
+        try {
+          if (e.message) text += `${e.message} \n\n`;
+          if (!e.message) text += `${JSON.stringify(e)} \n\n`;
+        } catch (err) {
+          console.log(`Failed to add odbcError ${index + 1} of ${error.odbcErrors.length} to error email`);
+        }
+      });
+    }
+
+    let subject = 'Report ';
+    try {
+      const def = await app.dbo.collection('definitions').findOne({ _id: ObjectId(id) }, { name: 1 });
+      subject += `"${def.name}"`;
+    } catch (err) {
+      console.error(err);
+      subject += `${id}`;
+    } finally {
+      subject += ' failed';
+    }
+
+    await sendEmail(process.env.ADMIN_EMAIL_ADDRESS, subject, text);
+  };
+
   const agenda = new Agenda({ mongo: app.dbo });
   app.agenda = agenda;
 
@@ -97,7 +131,7 @@ module.exports = async app => {
   });
   agenda.on('fail', (err, job) => {
     console.log(`Job "${job.attrs.name}" failed with error: ${err.message}`);
-    emailError(`Job "${job.attrs.name}" failed`, err.stack);
+    emailError(job.attrs.name, err);
   });
 
   console.log('Starting Agenda');
