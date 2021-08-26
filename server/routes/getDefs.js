@@ -9,6 +9,19 @@ module.exports = app => app.get(app.routeFromName(__filename), async (req, res) 
         },
       },
       {
+        $project: {
+          parentId: 1,
+          name: 1,
+          description: 1,
+        },
+      },
+      {
+        $sort: {
+          // dept: 1,
+          name: 1,
+        },
+      },
+      {
         $lookup: {
           from: 'users',
           let: {
@@ -110,14 +123,6 @@ module.exports = app => app.get(app.routeFromName(__filename), async (req, res) 
           as: 'lastRun',
         },
       },
-      // {
-      //   $lookup: {
-      //     from: 'reports',
-      //     localField: '_id',
-      //     foreignField: 'definitionId',
-      //     as: 'lastRun',
-      //   },
-      // },
       {
         $addFields: {
           subscribed: {
@@ -134,12 +139,6 @@ module.exports = app => app.get(app.routeFromName(__filename), async (req, res) 
               $max: '$lastRun._id',
             },
           },
-        },
-      },
-      {
-        $sort: {
-          // dept: 1,
-          name: 1,
         },
       },
     ];
