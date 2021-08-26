@@ -30,7 +30,7 @@ module.exports = app => app.post(app.routeFromName(__filename), async (req, res)
     let jobs = await app.agenda.jobs({ _id: ObjectId(editId) }, {}, 1);
     const job = jobs[0];
 
-    if (data) job.attrs.data = data;
+    if (data) job.attrs.data = data.replace(/,[\s]*/g, ', ');
 
     await job.repeatEvery(repeatInterval);
 

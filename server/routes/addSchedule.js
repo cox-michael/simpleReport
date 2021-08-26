@@ -18,7 +18,7 @@ module.exports = app => app.post(app.routeFromName(__filename), async (req, res)
       throw new Error('Invalid cron string.');
     }
 
-    await app.agenda.create(_id, data).repeatEvery(repeatInterval).save();
+    await app.agenda.create(_id, data.replace(/,[\s]*/g, ', ')).repeatEvery(repeatInterval).save();
     const jobs = await app.agenda.jobs({ name: _id });
     res.apiRes(jobs);
   } catch (err) {

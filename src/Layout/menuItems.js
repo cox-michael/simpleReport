@@ -6,6 +6,7 @@ import {
   Fingerprint,
   // People,
   // Settings,
+  Schedule,
   TableChart,
 } from '@material-ui/icons';
 
@@ -13,6 +14,7 @@ const Superpower = lazy(() => import('../Superpower'));
 // const UserPermissions = lazy(() => import('../UserPermissions'));
 const NotPermitted = lazy(() => import('../NotPermitted'));
 const Definitions = lazy(() => import('../Definitions'));
+const Schedules = lazy(() => import('../Schedules'));
 const EditDefinition = lazy(() => import('../EditDefinition'));
 // const Home = lazy(() => import('../Home'));
 // const Branch = lazy(() => import('../Branch'));
@@ -27,6 +29,14 @@ const getMenuItems = ({ permissions: perms }) => {
       icon: TableChart,
       component: Definitions,
       exact: true,
+    },
+    {
+      path: `${process.env.API_URL}schedules`,
+      to: `${process.env.API_URL}schedules`,
+      name: 'Schedules',
+      icon: Schedule,
+      component: Schedules,
+      // exact: true,
     },
     {
       path: `${process.env.API_URL}editDefinition/:_id`,
