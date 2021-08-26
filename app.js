@@ -14,7 +14,8 @@ const fs = require('fs');
 
 const session = require('express-session');
 // const FileStore = require('session-file-store')(session);
-const MongoStore = require('connect-mongo')(session);
+// const MongoStore = require('connect-mongo')(session);
+const MongoStore = require('connect-mongo');
 
 const app = express();
 app.use(express.json({ limit: '200mb' })); // this allows you to send and receive json for API
@@ -62,7 +63,7 @@ const expressSession = session({
   name: process.env.NODE_ENV, // ensure your environments don't share cookies
   secret: 'try',
   // store: new FileStore(fileStoreOptions),
-  store: new MongoStore({
+  store: MongoStore.create({
     clientPromise: app.dboPromise,
     dbName: 'mongoSessionStore',
   }),
