@@ -4,6 +4,11 @@ const { ObjectId } = require('mongodb');
 const sqlite3 = require('sqlite3').verbose();
 
 module.exports = app => app.post(app.routeFromName(__filename), async (req, res) => {
+  req.setTimeout(1000 * 60 * 20, () => {
+    console.log('Request timed out. Long running query');
+    res.send(500);
+  });
+
   const apiError = err => {
     if (err) {
       console.log('errror');

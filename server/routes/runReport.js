@@ -5,6 +5,11 @@ const executeReportQueries = require('./../executeReportQueries.js');
 const applyTheme = require('./../applyTheme.js');
 
 module.exports = app => app.post(app.routeFromName(__filename), async (req, res) => {
+  req.setTimeout(1000 * 60 * 20, () => {
+    console.log('Request timed out. Long running query');
+    res.send(500);
+  });
+
   const schema = Joi.object().keys({
     _id: Joi.string().regex(/^[0-9a-fA-F]{24}$/),
   }).options({ stripUnknown: true });

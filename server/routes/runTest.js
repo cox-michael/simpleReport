@@ -4,6 +4,11 @@ const applyTheme = require('./../applyTheme.js');
 const reportSchema = require('../schemas/reportOrDef')(false);
 
 module.exports = app => app.post(app.routeFromName(__filename), async (req, res) => {
+  req.setTimeout(1000 * 60 * 20, () => {
+    console.log('Request timed out. Long running query');
+    res.send(500);
+  });
+
   try {
     const definition = await reportSchema.validateAsync(req.body);
     let report = await executeReportQueries(definition, req.app.dbo);
