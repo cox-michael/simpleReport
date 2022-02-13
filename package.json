@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.8.6",
+    "@babel/eslint-parser": "^7.17.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/plugin-proposal-decorators": "^7.8.3",
     "@babel/plugin-proposal-do-expressions": "^7.8.3",
@@ -32,20 +33,19 @@
     "@babel/preset-env": "^7.8.6",
     "@babel/preset-react": "^7.8.3",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^24.9.0",
+    "babel-jest": "^27.5.1",
     "babel-loader": "^8.0.5",
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb": "^18.0.1",
-    "eslint-loader": "^3.0.3",
+    "eslint": "^8.8.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-loader": "^4.0.2",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.1",
     "eslint-plugin-react": "^7.18.3",
-    "jest": "^24.9.0",
+    "jest": "^27.5.1",
     "react-test-renderer": "^16.13.0",
     "webpack": "^4.42.0",
-    "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.4"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.0",
@@ -67,7 +67,7 @@
     "html-webpack-plugin": "^3.2.0",
     "ldapjs": "^1.0.2",
     "material-table": "^1.57.2",
-    "mongodb": "^3.5.4",
+    "mongodb": "^4.3.1",
     "nodemailer": "^6.6.2",
     "odbc": "^2.2.2",
     "prop-types": "^15.7.2",
@@ -82,6 +82,7 @@
     "react-split-pane": "^0.1.89",
     "session-file-store": "^1.4.0",
     "simplereport.js": "^0.1.1",
-    "sqlite3": "^4.1.1"
+    "sqlite3": "^5.0.2",
+    "supertest": "^6.2.2"
   }
 }
