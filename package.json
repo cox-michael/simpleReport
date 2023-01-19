@@ -45,7 +45,7 @@
     "react-test-renderer": "^16.13.0",
     "webpack": "^4.42.0",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^3.11.3"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.0",
